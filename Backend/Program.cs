@@ -24,6 +24,26 @@ builder.Services.AddDbContext<AWSDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+// CORSポリシーの名前を定義
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+// CORSポリシーを追加
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      builder =>
+                      {
+                          // ここにAngularアプリのURLを正確に記述
+                          // 例: Angularがhttp://localhost:4200で動いている場合
+                          builder.WithOrigins("http://localhost:4200",
+                                              "https://localhost:4200") // 必要であればHTTPSも
+                                 .AllowAnyHeader() // 全てのヘッダーを許可 (開発用)
+                                 .AllowAnyMethod(); // 全てのHTTPメソッドを許可 (開発用)
+                                                    // .AllowCredentials(); // クッキーや認証ヘッダーを送る場合はこれも必要
+                      });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -34,6 +54,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 

@@ -15,16 +15,16 @@ namespace WebApplication.service
 
         public UserResponse GetAllUserData()
         {
-            List<User> users = new List<User>();
+            List<Dto.User> users = new List<Dto.User>();
 
-            List<UserData> userList = this.repository.SelectAllData();
+            List<Model.User> userList = this.repository.SelectAllData();
 
             userList.ForEach(user =>
             {
-                var res = new User
+                var res = new Dto.User
                 {
                     Id = user.Id,
-                    UserName = user.UserName,
+                    UserName = user.Name,
                     Email = user.Email
                 };
                 users.Add(res);
@@ -40,10 +40,13 @@ namespace WebApplication.service
 
         public RegistResponse RegistUser(RegistRequest request)
         {
-            UserData data = new UserData
+            Model.User data = new()
             {
-                UserName = request.UserName,
-                Email = request.Email
+                Name = request.UserName,
+                Email = request.Email,
+                UserHash = Guid.NewGuid().ToString(), // 仮のハッシュ生成
+                CreateDate = DateTime.UtcNow,
+                UpdateDate = DateTime.UtcNow
             };
 
             this.repository.UserRigist(data);

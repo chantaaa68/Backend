@@ -12,16 +12,16 @@ namespace Backend.Repository
             this._dbContext = dbContext;
         }
 
-        public void NewsletterResist(Newsletter newsletter)
+        public void NewsletterResist(NewsletterTemplate newsletter)
         {
-            this._dbContext.Newsletters.Add(newsletter);
+            this._dbContext.NewsletterTemplates.Add(newsletter);
 
             this._dbContext.SaveChanges();
         }
 
-        public Newsletter GetNewsletterById(int id)
+        public NewsletterTemplate GetNewsletterById(int id)
         {
-            return this._dbContext.Newsletters.FirstOrDefault(n => n.Id == id) 
+            return this._dbContext.NewsletterTemplates.FirstOrDefault(n => n.Id == id) 
                    ?? throw new KeyNotFoundException($"Newsletter with ID {id} not found.");
         }
     }

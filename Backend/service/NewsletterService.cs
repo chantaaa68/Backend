@@ -22,10 +22,13 @@ namespace Backend.service
 
         public void NewsletterResist(NewsletterRigistRequest request)
         {
-            var newsletter = new Newsletter
+            var newsletter = new NewsletterTemplate
             {
-                Title = request.Title,
-                Content = request.Content
+                MailTitle = request.Title,
+                MailBody = request.Content,
+                CreateDate = DateTime.UtcNow,
+                UpdateDate = DateTime.UtcNow,
+                DeleteDate = null // 初期値はnull
             };
             this.newsletterRepository.NewsletterResist(newsletter);
         }
@@ -42,11 +45,11 @@ namespace Backend.service
             // ここでメール送信処理を実装する
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("chan.taaaTest", "noreply.tateyama@gmail.com")); // 送信者のメールアドレスを設定
-            message.To.Add(new MailboxAddress(user.UserName, user.Email)); // 受信者のメールアドレスを設定
-            message.Subject = newsletter.Title; // メールのタイトルを設定
+            message.To.Add(new MailboxAddress(user.Name, user.Email)); // 受信者のメールアドレスを設定
+            message.Subject = newsletter.MailTitle; // メールのタイトルを設定
             message.Body = new TextPart("plain")
             {
-                Text = newsletter.Content // メールの本文を設定
+                Text = newsletter.MailBody // メールの本文を設定
             };
             try
             {

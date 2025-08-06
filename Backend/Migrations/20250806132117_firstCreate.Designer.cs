@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication.Context;
 
@@ -10,9 +11,11 @@ using WebApplication.Context;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AWSDbContext))]
-    partial class AWSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250806132117_firstCreate")]
+    partial class firstCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

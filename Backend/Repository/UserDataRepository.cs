@@ -13,16 +13,16 @@ namespace WebApplication.Repository
             this._dbContext = dbContext;
         }
 
-        public List<UserData> SelectAllData()
+        public List<Model.User> SelectAllData()
         {
-            var userData = _dbContext.UserDatas.ToList();
+            var userData = _dbContext.Users.ToList();
 
             return userData;
         }
 
-        public UserData UserRigist(UserData request)
+        public Model.User UserRigist(Model.User request)
         {
-            this._dbContext.UserDatas.Add(request);
+            this._dbContext.Users.Add(request);
 
             this._dbContext.SaveChanges();
 
@@ -31,14 +31,14 @@ namespace WebApplication.Repository
 
         public int GetUserId(string email)
         {
-            var data = this._dbContext.UserDatas.Where(e => e.Email == email).ToList();
+            var data = this._dbContext.Users.Where(e => e.Email == email).ToList();
 
             return data[0].Id;
         }
 
-        public UserData GetUserById(int id)
+        public Model.User GetUserById(int id)
         {
-            return this._dbContext.UserDatas.FirstOrDefault(u => u.Id == id)
+            return this._dbContext.Users.FirstOrDefault(u => u.Id == id)
                    ?? throw new KeyNotFoundException($"User with ID {id} not found.");
         }
     }
