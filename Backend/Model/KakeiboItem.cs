@@ -15,51 +15,58 @@ namespace Backend.Model
         [Required]
         [Comment("家計簿テーブルID")]
         [ForeignKey(nameof(Kakeibo))]
-        public required int KakeiboId { get; set; }
+        public int KakeiboId { get; set; }
 
         [Required]
         [Comment("カテゴリID")]
         [ForeignKey(nameof(Category))]
-        public required int CategoryId { get; set; }
+        public int CategoryId { get; set; }
 
         [Required]
         [Comment("名前")]
         [MaxLength(20)]
-        public required string ItemName { get; set; }
+        public string? ItemName { get; set; }
 
         [Required]
         [Comment("金額")]
-        public required int ItemAmount { get; set; }
+        public int ItemAmount { get; set; }
 
         [Required]
         [Comment("出入金フラグ")]
-        public required bool InoutFlg { get; set; }
+        public bool InoutFlg { get; set; }
 
         [Required]
         [Comment("出入金日付")]
-        public required DateTime UsedDate { get; set; }
+        public DateTime UsedDate { get; set; }
 
         [Required]
-        [Comment("オプションID")]
-        [ForeignKey(nameof(KakeiboItemOption))]
-        public required int ItemOptionId { get; set; }
+        [Comment("固定費頻度")]
+        public int Frequency { get; set; }
+
+        [Comment("固定費開始日時")]
+        [MaxLength(20)]
+        public DateTime? FixedStartDate { get; set; }
+
+        [Comment("固定費終了日時")]
+        [MaxLength(20)]
+        public DateTime? FixedEndDate { get; set; }
 
         [Required]
         [Comment("登録日時")]
-        public required DateTime CreateDate { get; set; }
+        public DateTime CreateDate { get; set; }
 
         [Required]
         [Comment("更新日時")]
-        public required DateTime UpdateDate { get; set; }
+        public DateTime UpdateDate { get; set; }
 
         [Comment("削除日時")]
         public DateTime? DeleteDate { get; set; }
 
-        public virtual required Kakeibo Kakeibo { get; set; } = null!;
+        public virtual Kakeibo Kakeibo { get; set; } = null!;
 
-        public virtual required Category Category { get; set; } = null!;
+        public virtual Category Category { get; set; } = null!;
 
-        public virtual required KakeiboItemOption KakeiboItemOption { get; set; } = null!;
+        //public virtual KakeiboItemOption KakeiboItemOption { get; set; } = null!;
 
     }
 }

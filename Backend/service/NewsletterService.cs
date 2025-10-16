@@ -1,55 +1,123 @@
-﻿using Backend.Model;
+﻿using Backend.Annotation;
+using Backend.Dto.service.newsletter;
+using Backend.Model;
 using Backend.Repository;
+using Backend.Utility;
+using Backend.Utility.Dto;
 using MailKit.Security;
 using MimeKit;
-using Org.BouncyCastle.Crypto.Macs;
 using WebApplication.Repository;
-using static Backend.Dto.NewsletterDto;
 
 namespace Backend.service
 {
-    public class NewsletterService
+    [Component]
+    public class NewsletterService(
+        NewsletterRepository _newsletterRepository,
+        UserDataRepository _userDataRepository,
+        KakeiboRepository _kakeiboRepository)
     {
-        private readonly NewsletterRepository newsletterRepository;
+        private readonly NewsletterRepository newsletterRepository = _newsletterRepository;
 
-        private readonly UserDataRepository userDataRepository;
+        private readonly UserDataRepository userDataRepository = _userDataRepository;
 
-        public NewsletterService(NewsletterRepository newsletterRepository, UserDataRepository userDataRepository)
-        {
-            this.newsletterRepository = newsletterRepository;
-            this.userDataRepository = userDataRepository;
-        }
+        private readonly KakeiboRepository kakeiboRepository = _kakeiboRepository;
 
-        public void NewsletterResist(NewsletterRigistRequest request)
+        /// <summary>
+        /// メールテンプレートの登録
+        /// </summary>
+        /// <param name="req"></param>
+        public async Task<RigistNewsletterResponse> ResistNewsletterAsync(RigistNewsletterRequest req)
         {
             var newsletter = new NewsletterTemplate
             {
-                MailTitle = request.Title,
-                MailBody = request.Content,
+                MailTitle = req.Title,
+                MailBody = req.MailBody,
                 CreateDate = DateTime.UtcNow,
-                UpdateDate = DateTime.UtcNow,
-                DeleteDate = null // 初期値はnull
+                UpdateDate = DateTime.UtcNow
             };
-            this.newsletterRepository.NewsletterResist(newsletter);
+
+            RigistNewsletterResponse response = new()
+            {
+                Count = await this.newsletterRepository.ResistNewsletterTemplateAsync(newsletter)
+            };
+
+            return response;
         }
 
-        public NewsletterSendResponse NewsletterSend(NewsletterSendRequest request)
+        /// <summary>
+        /// メールテンプレートの更新
+        /// </summary>
+        /// <param name="req"></param>
+        public async Task<UpdateNewsletterResponse> UpdateNewsletterAsync(UpdateNewsletterRequest req)
+        {
+            NewsletterTemplate? template = await this.newsletterRepository.GetNewsletterById(req.Id);
+
+            if (template == null)
+            {
+                throw new Exception("テンプレートが存在しません");
+            }
+            else
+            {
+                template.MailTitle = req.Title;
+                template.MailBody = req.MailBody;
+                template.UpdateDate = DateTime.UtcNow;
+
+                UpdateNewsletterResponse response = new()
+                {
+                    Count = await this.newsletterRepository.ResistNewsletterTemplateAsync(template)
+                };
+
+                return response;
+            }
+        }
+
+        /// <summary>
+        /// メール送信
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public async Task<SendNewsletterResponse> SendNewsletterAsync(SendNewsletterRequest req)
         {
 
-            var newsletter = this.newsletterRepository.GetNewsletterById(request.NewsletterId);
+            NewsletterTemplate? newsletter = await this.newsletterRepository.GetNewsletterById(req.NewsletterId);
 
-            var user = this.userDataRepository.GetUserById(request.UserId);
+            if(newsletter == null)
+            {
+                throw new Exception("そんざいしません。");
+            }
+
+            // ユーザー情報を取得する
+            var user = this.userDataRepository.GetUserById(req.UserId);
+
+            // アイテム情報を取得する(実装予定）
+            KakeiboItem? item = await this.kakeiboRepository.GetKakeiboItemAsync(req.ItemId);
+
+            if(item == null)
+            {
+                throw new Exception("アイテムが存在しません。");
+            }
 
             int sendCount = 1;
 
+            // テンプレートからリプレースする
+            // TODO: メールのテンプレートは共通処理として切り出す
+            // ここから
+            string mailBody = Replace.TemplateExchange(new TemplateExchangeParameter
+            {
+                baseMailBody = newsletter.MailBody,
+                userName = user.Name,
+                itemName = item.ItemName!,
+                Price = item.ItemAmount.ToString()
+            });
+
             // ここでメール送信処理を実装する
-            var message = new MimeMessage();
+            MimeMessage message = new MimeMessage();
             message.From.Add(new MailboxAddress("chan.taaaTest", "noreply.tateyama@gmail.com")); // 送信者のメールアドレスを設定
             message.To.Add(new MailboxAddress(user.Name, user.Email)); // 受信者のメールアドレスを設定
             message.Subject = newsletter.MailTitle; // メールのタイトルを設定
             message.Body = new TextPart("plain")
             {
-                Text = newsletter.MailBody // メールの本文を設定
+                Text = mailBody // メールの本文を設定
             };
             try
             {
@@ -70,11 +138,12 @@ namespace Backend.service
             }
 
 
-            var response = new NewsletterSendResponse
+            var response = new SendNewsletterResponse
             {
-                sendCount = sendCount
+                SendCount = sendCount
             };
             return response;
         }
+
     }
 }

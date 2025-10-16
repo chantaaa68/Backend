@@ -15,35 +15,35 @@ namespace Backend.Model
         [Required]
         [Comment("家計簿テーブルID")]
         [ForeignKey(nameof(Kakeibo))]
-        public required int KakeiboID { get; set; }
+        public int KakeiboID { get; set; }
 
         [Required]
         [Comment("カテゴリ名")]
         [MaxLength(20)]
-        public required string KategoryName { get; set; }
+        public string CategoryName { get; set; } = null!;
 
         [Required]
         [Comment("出入金フラグ")]
-        public required Boolean InoutFlg { get; set; }
+        public bool InoutFlg { get; set; }
 
         [Required]
         [Comment("アイコンID")]
         [ForeignKey(nameof(Icon))]
-        public required int IconId { get; set; }
+        public int IconId { get; set; }
 
         [Required]
         [Comment("登録日時")]
-        public required DateTime CreateDate { get; set; }
+        public DateTime CreateDate { get; set; }
 
         [Required]
         [Comment("更新日時")]
-        public required DateTime UpdateDate { get; set; }
+        public DateTime UpdateDate { get; set; }
 
         [Comment("削除日時")]
         public DateTime? DeleteDate { get; set; }
 
-        public virtual required Kakeibo Kakeibo { get; set; } = null!;
+        public virtual Kakeibo Kakeibo { get; set; } = null!;
 
-        public virtual required Icon Icon { get; set; } = null!;
+        public virtual Icon Icon { get; set; } = null!;
     }
 }

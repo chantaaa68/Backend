@@ -22,12 +22,12 @@ namespace Backend.Model
         [Required]
         [Comment("ユーザーID")]
         [ForeignKey(nameof(User))]
-        public required int UserId { get; set; }
+        public int UserId { get; set; }
 
         [Required]
         [Comment("家計簿名")]
         [MaxLength(20)]
-        public required string KakeiboName { get; set; }
+        public string KakeiboName { get; set; }
 
         [Comment("説明文")]
         [MaxLength(1024)]
@@ -35,16 +35,16 @@ namespace Backend.Model
 
         [Required]
         [Comment("登録日時")]
-        public required DateTime CreateDate { get; set; }
+        public DateTime CreateDate { get; set; }
 
         [Required]
         [Comment("更新日時")]
-        public required DateTime UpdateDate { get; set; }
+        public DateTime UpdateDate { get; set; }
 
         [Comment("削除日時")]
         public DateTime? DeleteDate { get; set; }
 
-        public virtual User User { get; set; } = null!;
+        public virtual Users User { get; set; } = null!;
 
         public virtual ICollection<KakeiboItem> KakeiboItems { get; set; }
 

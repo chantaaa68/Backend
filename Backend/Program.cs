@@ -1,6 +1,8 @@
+ï»¿using Backend.Annotation;
 using Backend.Repository;
 using Backend.service;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using WebApplication.Context;
 using WebApplication.Repository;
 using WebApplication.service;
@@ -8,6 +10,12 @@ using WebApplication.service;
 var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// DIã™ã‚‹ã‚µãƒ¼ãƒ“ã‚¹ã‚’è‡ªå‹•ç™»éŒ²ã™ã‚‹
+AppDomain.CurrentDomain.GetAssemblies();
+foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+{
+    builder.Services.RegisterComponents(asm.FullName!);
+}
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<UserDataService>();
@@ -25,22 +33,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-// CORSƒ|ƒŠƒV[‚Ì–¼‘O‚ğ’è‹`
+// CORSãƒãƒªã‚·ãƒ¼ã®åå‰ã‚’å®šç¾©
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
-// CORSƒ|ƒŠƒV[‚ğ’Ç‰Á
+// CORSãƒãƒªã‚·ãƒ¼ã‚’è¿½åŠ 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       builder =>
                       {
-                          // ‚±‚±‚ÉAngularƒAƒvƒŠ‚ÌURL‚ğ³Šm‚É‹Lq
-                          // —á: Angular‚ªhttp://localhost:4200‚Å“®‚¢‚Ä‚¢‚éê‡
+                          // ã“ã“ã«Angularã‚¢ãƒ—ãƒªã®URLã‚’æ­£ç¢ºã«è¨˜è¿°
+                          // ä¾‹: AngularãŒhttp://localhost:4200ã§å‹•ã„ã¦ã„ã‚‹å ´åˆ
                           builder.WithOrigins("http://localhost:4200",
-                                              "https://localhost:4200") // •K—v‚Å‚ ‚ê‚ÎHTTPS‚à
-                                 .AllowAnyHeader() // ‘S‚Ä‚Ìƒwƒbƒ_[‚ğ‹–‰Â (ŠJ”­—p)
-                                 .AllowAnyMethod(); // ‘S‚Ä‚ÌHTTPƒƒ\ƒbƒh‚ğ‹–‰Â (ŠJ”­—p)
-                                                    // .AllowCredentials(); // ƒNƒbƒL[‚â”FØƒwƒbƒ_[‚ğ‘—‚éê‡‚Í‚±‚ê‚à•K—v
+                                              "https://localhost:4200") // å¿…è¦ã§ã‚ã‚Œã°HTTPSã‚‚
+                                 .AllowAnyHeader() // å…¨ã¦ã®ãƒ˜ãƒƒãƒ€ãƒ¼ã‚’è¨±å¯ (é–‹ç™ºç”¨)
+                                 .AllowAnyMethod(); // å…¨ã¦ã®HTTPãƒ¡ã‚½ãƒƒãƒ‰ã‚’è¨±å¯ (é–‹ç™ºç”¨)
+                                                    // .AllowCredentials(); // ã‚¯ãƒƒã‚­ãƒ¼ã‚„èªè¨¼ãƒ˜ãƒƒãƒ€ãƒ¼ã‚’é€ã‚‹å ´åˆã¯ã“ã‚Œã‚‚å¿…è¦
                       });
 });
 
@@ -62,3 +70,21 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+public class AWSDbContextFactory : IDesignTimeDbContextFactory<AWSDbContext>
+{
+    public AWSDbContext CreateDbContext(string[] args)
+    {
+        var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
+
+        // ã“ã“ã§æ¥ç¶šæ–‡å­—åˆ—ã‚„è¨­å®šã‚’ãƒãƒ¼ãƒ‰ã‚³ãƒ¼ãƒ‰ã™ã‚‹ã‹ã€Configurationã‚’èª­ã¿è¾¼ã‚€
+        var optionsBuilder = new DbContextOptionsBuilder<AWSDbContext>();
+
+        // ä¾‹ SQL Serverã®å ´åˆ
+        optionsBuilder.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
+            ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        return new AWSDbContext(optionsBuilder.Options);
+    }
+}

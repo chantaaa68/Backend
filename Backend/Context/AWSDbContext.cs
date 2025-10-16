@@ -13,18 +13,20 @@ namespace WebApplication.Context
 
         public AWSDbContext(DbContextOptions<AWSDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<Users> Users { get; set; }
         public DbSet<Kakeibo> Kakeibo { get; set; }
-        public DbSet<NewsletterTemplate> NewsletterTemplates { get; set; }
-        public DbSet<KakeiboItem> KakeiboItems { get; set; }
-        public DbSet<KakeiboItemOption> KakeiboItemOptions { get; set; }
-        public DbSet<Category> Kategories { get; set; }
-        public DbSet<Icon> Icons { get; set; }
+        public DbSet<NewsletterTemplate> NewsletterTemplate { get; set; }
+        public DbSet<KakeiboItem> KakeiboItem { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<CategoryDefault> CategoryDefault { get; set; }
+        public DbSet<Icon> Icon { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().HasIndex(e => e.Email).IsUnique();
+            // joinするときに、delete_date==nullを接続するようにする
+            modelBuilder.Entity<Icon>().HasQueryFilter(i => i.DeleteDate == null);
+            modelBuilder.Entity<Users>().HasIndex(e => e.Email).IsUnique();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

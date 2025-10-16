@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class firstCreate : Migration
+    public partial class FirstCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,7 @@ namespace Backend.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Icons",
+                name: "Icon",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false, comment: "ID")
@@ -31,12 +31,12 @@ namespace Backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Icons", x => x.Id);
+                    table.PrimaryKey("PK_Icon", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "NewsletterTemplates",
+                name: "NewsletterTemplate",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false, comment: "ID")
@@ -51,7 +51,7 @@ namespace Backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_NewsletterTemplates", x => x.Id);
+                    table.PrimaryKey("PK_NewsletterTemplate", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -105,44 +105,7 @@ namespace Backend.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "KakeiboItemOptions",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false, comment: "ID")
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    KakeiboId = table.Column<int>(type: "int", nullable: false, comment: "家計簿ID"),
-                    CategoryId = table.Column<int>(type: "int", nullable: false, comment: "カテゴリID"),
-                    ItemName = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false, comment: "名前")
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ItemAmount = table.Column<int>(type: "int", nullable: false, comment: "金額"),
-                    InoutFlg = table.Column<bool>(type: "tinyint(1)", nullable: false, comment: "出入金フラグ"),
-                    Frequency = table.Column<int>(type: "int", nullable: false, comment: "固定費頻度"),
-                    FixedStartDate = table.Column<DateTime>(type: "datetime(6)", maxLength: 20, nullable: false, comment: "固定費開始日時"),
-                    FixedEndDate = table.Column<DateTime>(type: "datetime(6)", maxLength: 20, nullable: false, comment: "固定費終了日時"),
-                    CreateDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "登録日時"),
-                    UpdateDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "更新日時"),
-                    DeleteDate = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "削除日時"),
-                    UserId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_KakeiboItemOptions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_KakeiboItemOptions_Kakeibo_KakeiboId",
-                        column: x => x.KakeiboId,
-                        principalTable: "Kakeibo",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_KakeiboItemOptions_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Kategories",
+                name: "Category",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false, comment: "ID")
@@ -158,15 +121,15 @@ namespace Backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Kategories", x => x.Id);
+                    table.PrimaryKey("PK_Category", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Kategories_Icons_IconId",
+                        name: "FK_Category_Icon_IconId",
                         column: x => x.IconId,
-                        principalTable: "Icons",
+                        principalTable: "Icon",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Kategories_Kakeibo_KakeiboID",
+                        name: "FK_Category_Kakeibo_KakeiboID",
                         column: x => x.KakeiboID,
                         principalTable: "Kakeibo",
                         principalColumn: "Id",
@@ -175,7 +138,7 @@ namespace Backend.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "KakeiboItems",
+                name: "KakeiboItem",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false, comment: "ID")
@@ -187,30 +150,26 @@ namespace Backend.Migrations
                     ItemAmount = table.Column<int>(type: "int", nullable: false, comment: "金額"),
                     InoutFlg = table.Column<bool>(type: "tinyint(1)", nullable: false, comment: "出入金フラグ"),
                     UsedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "出入金日付"),
-                    ItemOptionId = table.Column<int>(type: "int", nullable: false, comment: "オプションID"),
+                    Frequency = table.Column<int>(type: "int", nullable: false, comment: "固定費頻度"),
+                    FixedStartDate = table.Column<DateTime>(type: "datetime(6)", maxLength: 20, nullable: true, comment: "固定費開始日時"),
+                    FixedEndDate = table.Column<DateTime>(type: "datetime(6)", maxLength: 20, nullable: true, comment: "固定費終了日時"),
                     CreateDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "登録日時"),
                     UpdateDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, comment: "更新日時"),
                     DeleteDate = table.Column<DateTime>(type: "datetime(6)", nullable: true, comment: "削除日時")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_KakeiboItems", x => x.Id);
+                    table.PrimaryKey("PK_KakeiboItem", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_KakeiboItems_KakeiboItemOptions_ItemOptionId",
-                        column: x => x.ItemOptionId,
-                        principalTable: "KakeiboItemOptions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_KakeiboItems_Kakeibo_KakeiboId",
+                        name: "FK_KakeiboItem_Kakeibo_KakeiboId",
                         column: x => x.KakeiboId,
                         principalTable: "Kakeibo",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_KakeiboItems_Kategories_CategoryId",
+                        name: "FK_KakeiboItem_Category_CategoryId",
                         column: x => x.CategoryId,
-                        principalTable: "Kategories",
+                        principalTable: "Category",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -223,39 +182,24 @@ namespace Backend.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_KakeiboItemOptions_KakeiboId",
-                table: "KakeiboItemOptions",
-                column: "KakeiboId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_KakeiboItemOptions_UserId",
-                table: "KakeiboItemOptions",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_KakeiboItems_CategoryId",
-                table: "KakeiboItems",
+                name: "IX_KakeiboItem_CategoryId",
+                table: "KakeiboItem",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_KakeiboItems_ItemOptionId",
-                table: "KakeiboItems",
-                column: "ItemOptionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_KakeiboItems_KakeiboId",
-                table: "KakeiboItems",
+                name: "IX_KakeiboItem_KakeiboId",
+                table: "KakeiboItem",
                 column: "KakeiboId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Kategories_IconId",
-                table: "Kategories",
+                name: "IX_Category_IconId",
+                table: "Category",
                 column: "IconId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Kategories_KakeiboID",
-                table: "Kategories",
+                name: "IX_Category_KakeiboID",
+                table: "Category",
                 column: "KakeiboID");
 
             migrationBuilder.CreateIndex(
@@ -269,19 +213,16 @@ namespace Backend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "KakeiboItems");
+                name: "KakeiboItem");
 
             migrationBuilder.DropTable(
-                name: "NewsletterTemplates");
+                name: "NewsletterTemplate");
 
             migrationBuilder.DropTable(
-                name: "KakeiboItemOptions");
+                name: "Category");
 
             migrationBuilder.DropTable(
-                name: "Kategories");
-
-            migrationBuilder.DropTable(
-                name: "Icons");
+                name: "Icon");
 
             migrationBuilder.DropTable(
                 name: "Kakeibo");

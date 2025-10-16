@@ -1,10 +1,11 @@
 ﻿using Backend.Model.Interface;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Model
 {
-    public class Icon : KakeiboInterface
+    public class CategoryDefault : KakeiboInterface
     {
         [Key]
         [Required]
@@ -12,12 +13,18 @@ namespace Backend.Model
         public int Id { get; set; }
 
         [Required]
-        [Comment("アイコン名")]
-        public string OfficialIconName { get; set; } = null!;
+        [Comment("カテゴリ名")]
+        [MaxLength(20)]
+        public string KategoryName { get; set; } = null!;
 
         [Required]
-        [Comment("表示名")]
-        public string DefaultIconName { get; set; } = null!;
+        [Comment("出入金フラグ")]
+        public Boolean InoutFlg { get; set; }
+
+        [Required]
+        [Comment("アイコンID")]
+        [ForeignKey(nameof(Icon))]
+        public int IconId { get; set; }
 
         [Required]
         [Comment("登録日時")]
@@ -30,8 +37,6 @@ namespace Backend.Model
         [Comment("削除日時")]
         public DateTime? DeleteDate { get; set; }
 
-        public virtual Category Category { get; set; } = null!;
-
-        public virtual CategoryDefault CategoryDefault { get; set; } = null!;
+        public virtual required Icon Icon { get; set; } = null!;
     }
 }
