@@ -53,8 +53,6 @@ namespace WebApplication.service
                 Name = req.UserName,
                 Email = req.Email,
                 UserHash = Guid.NewGuid().ToString(), // 仮のハッシュ生成
-                CreateDate = DateTime.UtcNow,
-                UpdateDate = DateTime.UtcNow
             };
 
             // TODO: トランザクションの検討
@@ -66,8 +64,6 @@ namespace WebApplication.service
                 UserId = userId,
                 KakeiboName = req.KakeiboName,
                 KakeiboExplanation = req.KakeiboExplanation,
-                CreateDate = DateTime.UtcNow,
-                UpdateDate = DateTime.UtcNow
             };
 
             await this.kakeiboRepository.RegistKakeiboAsync(kakeibo);

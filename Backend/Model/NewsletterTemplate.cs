@@ -23,11 +23,11 @@ namespace Backend.Model
 
         [Required]
         [Comment("登録日時")]
-        public required DateTime CreateDate { get; set; }
+        public DateTime CreateDate { get; set; }
 
         [Required]
         [Comment("更新日時")]
-        public required DateTime UpdateDate { get; set; }
+        public DateTime UpdateDate { get; set; }
 
         [Comment("削除日時")]
         public DateTime? DeleteDate { get; set; }

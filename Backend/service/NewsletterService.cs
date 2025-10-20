@@ -32,8 +32,6 @@ namespace Backend.service
             {
                 MailTitle = req.Title,
                 MailBody = req.MailBody,
-                CreateDate = DateTime.UtcNow,
-                UpdateDate = DateTime.UtcNow
             };
 
             RigistNewsletterResponse response = new()
@@ -60,7 +58,6 @@ namespace Backend.service
             {
                 template.MailTitle = req.Title;
                 template.MailBody = req.MailBody;
-                template.UpdateDate = DateTime.UtcNow;
 
                 UpdateNewsletterResponse response = new()
                 {

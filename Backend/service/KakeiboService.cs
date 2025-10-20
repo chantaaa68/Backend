@@ -131,8 +131,7 @@ namespace Backend.service
                 {
                     KakeiboId = req.KakeiboId,
                     Frequency = req.Frequency,
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now
+                    CategoryId = req.CategoryId
                 };
 
                 // 固定費管理テーブルに登録を実施
@@ -147,8 +146,6 @@ namespace Backend.service
                     InoutFlg = req.InoutFlg,
                     UsedDate = usedDate,
                     FrequencyId = frequency.Id,
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now
                 };
 
                 // リストに追加
@@ -168,8 +165,6 @@ namespace Backend.service
                     Frequency = req.Frequency,
                     FixedStartDate = req.UsedDate,
                     FixedEndDate = req.FixedEndDate,
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now
                 };
 
                 // 固定費管理テーブルに登録を実施
@@ -187,8 +182,6 @@ namespace Backend.service
                         InoutFlg = req.InoutFlg,
                         UsedDate = usedDate,
                         FrequencyId = frequency.Id,
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now
                     };
 
                     // リストに追加
@@ -217,8 +210,6 @@ namespace Backend.service
                     Frequency = req.Frequency,
                     FixedStartDate = req.UsedDate,
                     FixedEndDate = req.FixedEndDate,
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now
                 };
 
                 // 固定費管理テーブルに登録を実施
@@ -236,8 +227,6 @@ namespace Backend.service
                         InoutFlg = req.InoutFlg,
                         UsedDate = usedDate,
                         FrequencyId = frequency.Id,
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now
                     };
 
                     // リストに追加
@@ -260,8 +249,6 @@ namespace Backend.service
                     Frequency = req.Frequency,
                     FixedStartDate = req.UsedDate,
                     FixedEndDate = req.FixedEndDate,
-                    CreateDate = DateTime.Now,
-                    UpdateDate = DateTime.Now
                 };
 
                 // 固定費管理テーブルに登録を実施
@@ -279,8 +266,6 @@ namespace Backend.service
                         InoutFlg = req.InoutFlg,
                         UsedDate = usedDate,
                         FrequencyId = frequency.Id,
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now
                     };
 
                     // リストに追加
@@ -326,7 +311,6 @@ namespace Backend.service
                 item.ItemAmount = req.ItemAmount;
                 item.InoutFlg = req.InoutFlg;
                 item.UsedDate = req.UsedDate;
-                item.UpdateDate = DateTime.Now;
 
                 return new UpdateKakeiboItemResponse()
                 {
@@ -362,8 +346,6 @@ namespace Backend.service
                         Frequency = frequency.Frequency,
                         FixedStartDate = startTime,
                         FixedEndDate = endTime,
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now
                     };
 
                     await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(newFrequency);
@@ -384,7 +366,6 @@ namespace Backend.service
                         kakeiboItem.ItemName = req.ItemName;
                         kakeiboItem.ItemAmount = req.ItemAmount;
                         kakeiboItem.InoutFlg = req.InoutFlg;
-                        kakeiboItem.UpdateDate = DateTime.Now;
                     }
 
                     return new UpdateKakeiboItemResponse()
@@ -399,8 +380,7 @@ namespace Backend.service
                     {
                         KakeiboId = frequency.KakeiboId,
                         Frequency = (int)Frequency.OnlyOnce,
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now
+                        CategoryId = frequency.CategoryId
                     };
 
                     await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(newFrequency);
@@ -412,7 +392,6 @@ namespace Backend.service
                     item.InoutFlg = req.InoutFlg;
                     item.UsedDate = req.UsedDate;
                     item.FrequencyId = newFrequency.Id;
-                    item.UpdateDate = DateTime.Now;
 
                     return new UpdateKakeiboItemResponse()
                     {

@@ -72,8 +72,6 @@ namespace Backend.service
                 CategoryName = req.CategoryName,
                 InoutFlg = req.InoutFlg,
                 IconId = await this.iconRepository.GetIconIdAsync(req.IconName),
-                CreateDate = DateTime.Now,
-                UpdateDate = DateTime.Now
             };
 
             RegistCategoryResponse response = new()

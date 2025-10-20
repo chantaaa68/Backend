@@ -22,10 +22,10 @@ namespace WebApplication.Model
         public required string Email { get; set; } = null!;
 
         [Comment("登録日時")]
-        public required DateTime CreateDate { get; set; }
+        public DateTime CreateDate { get; set; }
 
         [Comment("更新日時")] 
-        public required DateTime UpdateDate { get; set; }
+        public DateTime UpdateDate { get; set; }
 
         [Comment("削除日時")]
         public DateTime? DeleteDate { get; set; }
