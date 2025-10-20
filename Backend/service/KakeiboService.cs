@@ -5,9 +5,8 @@ using Backend.Dto.service;
 using Backend.Dto.service.kakeibo;
 using Backend.Model;
 using Backend.Repository;
-using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Asn1.Ocsp;
 using WebApplication.Context;
+using static Backend.Utility.Enums;
 
 namespace Backend.service
 {
@@ -100,23 +99,203 @@ namespace Backend.service
         /// <returns></returns>
         public async Task<RegistKakeiboItemResponse> RegistKakeiboItemAsync(RegistKakeiboItemRequest req)
         {
-            KakeiboItem item = new KakeiboItem()
+            // くり返し処理用の出入金日付
+            DateTime usedDate = req.UsedDate;
+
+            // 繰り返し用日数or月数or年数を設定
+            int frequencyNumber = req.Frequency switch
             {
-                CategoryId = req.CategoryId,
-                ItemName = req.ItemName,
-                ItemAmount = req.ItemAmount,
-                InoutFlg = req.InoutFlg,
-                UsedDate = req.UsedDate,
-                CreateDate = DateTime.Now,
-                UpdateDate = DateTime.Now
+                (int)Frequency.OnlyOnce => 0,
+                (int)Frequency.EveryDay => 1,
+                (int)Frequency.EveryWeek => 7,
+                (int)Frequency.EveryTwoWeeks => 14,
+                (int)Frequency.EveryThreeWeeks => 21,
+                (int)Frequency.EveryMonth => 1,
+                (int)Frequency.EveryTwoMonths => 2,
+                (int)Frequency.EveryThreeMonths => 3,
+                (int)Frequency.EveryFourMonths => 4,
+                (int)Frequency.EveryFiveMonths => 5,
+                (int)Frequency.EverySixMonths => 6,
+                (int)Frequency.EveryYear => 1,
+                _ => 0
             };
 
-            RegistKakeiboItemResponse response = new()
-            {
-                Count = await this.kakeiboRepositoy.RegistKakeiboItemAsync(item)
-            };
+            // 登録するアイテムリスト
+            List<KakeiboItem> items = new List<KakeiboItem>();
 
-            return response;
+            // 固定費頻度によって処理を分岐
+            if (req.Frequency == (int)Frequency.OnlyOnce) 
+            {
+                // 固定費管理テーブル登録用データの作成
+                KakeiboItemFrequency frequency = new()
+                {
+                    KakeiboId = req.KakeiboId,
+                    Frequency = req.Frequency,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+
+                // 固定費管理テーブルに登録を実施
+                await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(frequency);
+
+                KakeiboItem item = new KakeiboItem()
+                {
+                    KakeiboId = req.KakeiboId,
+                    CategoryId = req.CategoryId,
+                    ItemName = req.ItemName,
+                    ItemAmount = req.ItemAmount,
+                    InoutFlg = req.InoutFlg,
+                    UsedDate = usedDate,
+                    FrequencyId = frequency.Id,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+
+                // リストに追加
+                items.Add(item);
+            }
+            else if(req.Frequency == (int)Frequency.EveryDay
+                || req.Frequency == (int)Frequency.EveryWeek)
+            {
+                // 固定費管理テーブル登録用データの作成
+                KakeiboItemFrequency frequency = new()
+                {
+                    KakeiboId = req.KakeiboId,
+                    CategoryId = req.CategoryId,
+                    ItemName = req.ItemName,
+                    ItemAmount = req.ItemAmount,
+                    InoutFlg = req.InoutFlg,
+                    Frequency = req.Frequency,
+                    FixedStartDate = req.UsedDate,
+                    FixedEndDate = req.FixedEndDate,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+
+                // 固定費管理テーブルに登録を実施
+                await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(frequency);
+
+                // 繰り返し終了日付に到達するまで繰り返し
+                while (req.FixedEndDate > usedDate)
+                {
+                    KakeiboItem item = new KakeiboItem()
+                    {
+                        KakeiboId = req.KakeiboId,
+                        CategoryId = req.CategoryId,
+                        ItemName = req.ItemName,
+                        ItemAmount = req.ItemAmount,
+                        InoutFlg = req.InoutFlg,
+                        UsedDate = usedDate,
+                        FrequencyId = frequency.Id,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now
+                    };
+
+                    // リストに追加
+                    items.Add(item);
+
+                    // 指定の日数進める
+                    usedDate = usedDate.AddDays(frequencyNumber);
+                }
+
+            } 
+            else if(req.Frequency == (int)Frequency.EveryMonth 
+                || req.Frequency == (int)Frequency.EveryTwoMonths
+                || req.Frequency == (int)Frequency.EveryThreeMonths
+                || req.Frequency == (int)Frequency.EveryFourMonths
+                || req.Frequency == (int)Frequency.EveryFiveMonths
+                || req.Frequency == (int)Frequency.EverySixMonths)
+            {
+                // 固定費管理テーブル登録用データの作成
+                KakeiboItemFrequency frequency = new()
+                {
+                    KakeiboId = req.KakeiboId,
+                    CategoryId = req.CategoryId,
+                    ItemName = req.ItemName,
+                    ItemAmount = req.ItemAmount,
+                    InoutFlg = req.InoutFlg,
+                    Frequency = req.Frequency,
+                    FixedStartDate = req.UsedDate,
+                    FixedEndDate = req.FixedEndDate,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+
+                // 固定費管理テーブルに登録を実施
+                await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(frequency);
+
+                // 繰り返し終了日付に到達するまで繰り返し
+                while (req.FixedEndDate > usedDate)
+                {
+                    KakeiboItem item = new KakeiboItem()
+                    {
+                        KakeiboId = req.KakeiboId,
+                        CategoryId = req.CategoryId,
+                        ItemName = req.ItemName,
+                        ItemAmount = req.ItemAmount,
+                        InoutFlg = req.InoutFlg,
+                        UsedDate = usedDate,
+                        FrequencyId = frequency.Id,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now
+                    };
+
+                    // リストに追加
+                    items.Add(item);
+
+                    // 日付を指定の月数進める
+                    usedDate = usedDate.AddMonths(frequencyNumber);
+                }
+            }
+            else if(req.Frequency == (int)Frequency.EveryYear)
+            {
+                // 固定費管理テーブル登録用データの作成
+                KakeiboItemFrequency frequency = new()
+                {
+                    KakeiboId = req.KakeiboId,
+                    CategoryId = req.CategoryId,
+                    ItemName = req.ItemName,
+                    ItemAmount = req.ItemAmount,
+                    InoutFlg = req.InoutFlg,
+                    Frequency = req.Frequency,
+                    FixedStartDate = req.UsedDate,
+                    FixedEndDate = req.FixedEndDate,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+
+                // 固定費管理テーブルに登録を実施
+                await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(frequency);
+
+                // 繰り返し終了日付に到達するまで繰り返し
+                while (req.FixedEndDate > usedDate)
+                {
+                    KakeiboItem item = new KakeiboItem()
+                    {
+                        KakeiboId = req.KakeiboId,
+                        CategoryId = req.CategoryId,
+                        ItemName = req.ItemName,
+                        ItemAmount = req.ItemAmount,
+                        InoutFlg = req.InoutFlg,
+                        UsedDate = usedDate,
+                        FrequencyId = frequency.Id,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now
+                    };
+
+                    // リストに追加
+                    items.Add(item);
+
+                    // 日付を指定の年数進める
+                    usedDate = usedDate.AddYears(frequencyNumber);
+                }
+            }
+
+            //配列でまとめて登録
+            return new RegistKakeiboItemResponse()
+            {
+                Count = await this.kakeiboRepositoy.RegistKakeiboItemListAsync(items)
+            };
         }
 
         /// <summary>
@@ -124,27 +303,122 @@ namespace Backend.service
         /// <summary>
         public async Task<UpdateKakeiboItemResponse> UpdateKakeiboItemAsync(UpdateKakeiboItemRequest req)
         {
-            // フロント側でリクエストする時点で存在しないことなないので。
-            KakeiboItem? item = await this.kakeiboRepositoy.GetKakeiboItemAsync(req.Id);
+            // 該当アイテム取得
+            KakeiboItem? item = await this.kakeiboRepositoy.GetKakeiboItemAsync(req.ItemId);
 
-            if(item== null)
+            if(item == null)
             {
-                throw new Exception("アイテムがありません");
+                throw new Exception("アイテムが存在しません");
             }
-            else
+
+            // 該当固定費管理データ取得
+            KakeiboItemFrequency? frequency = await this.kakeiboRepositoy.GetKakeiboItemFrequencyAsync(item.FrequencyId);
+
+            if(frequency == null)
             {
-                item.CategoryId = req.CategoryId ?? item.CategoryId;
-                item.ItemName = req.ItemName ?? item.ItemName;
-                item.ItemAmount = req.ItemAmount ?? item.ItemAmount;
-                item.InoutFlg = req.InoutFlg ?? item.InoutFlg;
-                item.UsedDate = req.UsedDate ?? item.UsedDate;
+                throw new Exception("固定費管理データが存在しません");
+            }
+            else if(frequency.Frequency == (int)Frequency.OnlyOnce)
+            {
+                // 単品登録の更新の場合はアイテムの更新のみでOK。
+                item.CategoryId = req.CategoryId;
+                item.ItemName = req.ItemName;
+                item.ItemAmount = req.ItemAmount;
+                item.InoutFlg = req.InoutFlg;
+                item.UsedDate = req.UsedDate;
                 item.UpdateDate = DateTime.Now;
 
-                UpdateKakeiboItemResponse response = new()
+                return new UpdateKakeiboItemResponse()
                 {
                     Count = await this.kakeiboRepositoy.UpdateKakeiboItemAsync(item)
                 };
-                return response;
+            }
+            else
+            {
+                // 単品登録以外の場合、それ以降の全部の変更orそれ単体の変更
+                if (req.ChangeFlg)
+                {
+                    // 指定アイテムの利用日
+                    DateTime startTime = item.UsedDate;
+
+                    // 現状存在する固定費管理データの終了日時(新しい固定費管理データの終了日時となる)
+                    DateTime endTime = frequency.FixedEndDate!.Value;
+
+                    // 現状存在する固定費管理データの終了日時を指定アイテムの利用日-1日で登録
+                    frequency.FixedEndDate = startTime.AddDays(-1);
+                    frequency.UpdateDate = DateTime.Now;
+
+                    // 旧固定費管理データの更新
+                    await this.kakeiboRepositoy.UpdateKakeiboItemFrequencyAsync(frequency);
+
+                    // 続いて、新規固定費管理データを登録
+                    KakeiboItemFrequency newFrequency = new()
+                    {
+                        KakeiboId = frequency.KakeiboId,
+                        CategoryId = req.CategoryId,
+                        ItemName = req.ItemName,
+                        ItemAmount = req.ItemAmount,
+                        InoutFlg = req.InoutFlg,
+                        Frequency = frequency.Frequency,
+                        FixedStartDate = startTime,
+                        FixedEndDate = endTime,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now
+                    };
+
+                    await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(newFrequency);
+
+                    // 続いて、該当全リストを取得して中身の更新を行う
+                    List<KakeiboItem>? items = await this.kakeiboRepositoy.GetKakeiboItemListAsync(new()
+                    {
+                        frequencyId = frequency.Id,
+                        StartDate = startTime,
+                    });
+
+                    // 取得したアイテムの中身を書き換えてまとめて更新する
+                    foreach (var kakeiboItem in items)
+                    {
+                        // 頻度・利用日を変える必要はない。
+                        kakeiboItem.FrequencyId = newFrequency.Id;
+                        kakeiboItem.CategoryId = req.CategoryId;
+                        kakeiboItem.ItemName = req.ItemName;
+                        kakeiboItem.ItemAmount = req.ItemAmount;
+                        kakeiboItem.InoutFlg = req.InoutFlg;
+                        kakeiboItem.UpdateDate = DateTime.Now;
+                    }
+
+                    return new UpdateKakeiboItemResponse()
+                    {
+                        Count = await this.kakeiboRepositoy.UpdateKakeiboItemListAsync(items)
+                    };
+                }
+                else
+                {
+                    // 該当アイテムのみを更新する場合、新規固定費管理データを登録とアイテムの更新のみ
+                    KakeiboItemFrequency newFrequency = new()
+                    {
+                        KakeiboId = frequency.KakeiboId,
+                        Frequency = (int)Frequency.OnlyOnce,
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now
+                    };
+
+                    await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(newFrequency);
+
+                    // 単品登録の更新の場合はアイテムの更新のみでOK。
+                    item.CategoryId = req.CategoryId;
+                    item.ItemName = req.ItemName;
+                    item.ItemAmount = req.ItemAmount;
+                    item.InoutFlg = req.InoutFlg;
+                    item.UsedDate = req.UsedDate;
+                    item.FrequencyId = newFrequency.Id;
+                    item.UpdateDate = DateTime.Now;
+
+                    return new UpdateKakeiboItemResponse()
+                    {
+                        Count = await this.kakeiboRepositoy.UpdateKakeiboItemAsync(item)
+                    };
+                }
             }
         }
 

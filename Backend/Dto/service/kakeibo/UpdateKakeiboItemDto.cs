@@ -8,32 +8,43 @@ namespace Backend.Dto.service
          * アイテムID
          */
         [Required]
-        public int Id { get; set; }
+        public int ItemId { get; set; }
 
         /**
          * カテゴリID
          */
-        public int? CategoryId { get; set; }
+        [Required]
+        public int CategoryId { get; set; }
 
         /**
          * アイテム名
          */
-        public string? ItemName { get; set; }
+        [Required]
+        public string ItemName { get; set; }
 
         /**
          * 金額
          */
-        public int? ItemAmount { get; set; }
+        [Required]
+        public int ItemAmount { get; set; }
 
         /**
          * 出入金フラグ
          */
-        public bool? InoutFlg { get; set; }
+        [Required]
+        public bool InoutFlg { get; set; }
 
         /**
          * 出入金日付
          */
-        public DateTime? UsedDate { get; set; }
+        [Required]
+        public DateTime UsedDate { get; set; }
+
+        /// <summary>
+        /// 単体変更判断フラグ(true：該当アイテムのみ, false：それ以降全部)
+        /// </summary>
+        [Required]
+        public bool ChangeFlg { get; set; }
     }
 
     public class UpdateKakeiboItemResponse

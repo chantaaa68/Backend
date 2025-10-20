@@ -15,11 +15,12 @@ namespace WebApplication.Context
 
         public DbSet<Users> Users { get; set; }
         public DbSet<Kakeibo> Kakeibo { get; set; }
-        public DbSet<NewsletterTemplate> NewsletterTemplate { get; set; }
+        public DbSet<KakeiboItemFrequency> KakeiboItemFrequency { get; set; }
         public DbSet<KakeiboItem> KakeiboItem { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<CategoryDefault> CategoryDefault { get; set; }
         public DbSet<Icon> Icon { get; set; }
+        public DbSet<NewsletterTemplate> NewsletterTemplate { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

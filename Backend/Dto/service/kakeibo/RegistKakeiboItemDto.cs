@@ -4,11 +4,12 @@ namespace Backend.Dto.service
 {
     public class RegistKakeiboItemRequest
     {
+
         /**
-         * カテゴリID
+         * 家計簿ID
          */
         [Required]
-        public int CategoryId { get; set; }
+        public int KakeiboId { get; set; }
 
         /**
          * アイテム名
@@ -33,6 +34,25 @@ namespace Backend.Dto.service
          */
         [Required]
         public DateTime UsedDate { get; set; }
+
+        /**
+         * カテゴリID
+         */
+        [Required]
+        public int CategoryId { get; set; }
+
+        /// <summary>
+        /// 固定費頻度
+        /// </summary>
+        [Range(0, 11)]
+        [Required]
+        public int Frequency { get; set; }
+
+        /// <summary>
+        /// 固定費終了日付
+        /// </summary>
+        [Required]
+        public DateTime? FixedEndDate { get; set; }
     }
 
     public class RegistKakeiboItemResponse

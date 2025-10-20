@@ -12,6 +12,7 @@ namespace Backend.Model
         {
             KakeiboItems = new HashSet<KakeiboItem>();
             Categories = new HashSet<Category>();
+            KakeiboItemFrequencies = new HashSet<KakeiboItemFrequency>();
         }
 
         [Key]
@@ -27,7 +28,7 @@ namespace Backend.Model
         [Required]
         [Comment("家計簿名")]
         [MaxLength(20)]
-        public string KakeiboName { get; set; }
+        public string KakeiboName { get; set; } = string.Empty!;
 
         [Comment("説明文")]
         [MaxLength(1024)]
@@ -49,5 +50,7 @@ namespace Backend.Model
         public virtual ICollection<KakeiboItem> KakeiboItems { get; set; }
 
         public virtual ICollection<Category> Categories { get; set; }
+
+        public virtual ICollection<KakeiboItemFrequency> KakeiboItemFrequencies { get; set; }
     }
 }

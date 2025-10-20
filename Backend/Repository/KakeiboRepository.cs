@@ -123,6 +123,23 @@ namespace Backend.Repository
             return result;
         }
 
+        /// <summary>
+        /// アイテムデータリストの取得
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<List<KakeiboItem>?> GetKakeiboItemListAsync(GetKakeiboItemListParameter prm)
+        {
+            List<KakeiboItem>? result = await this._dbContext.KakeiboItem
+                .Where(k => k.FrequencyId == prm.frequencyId 
+                    && prm.StartDate <= k.UsedDate
+                    && k.DeleteDate == null
+                    )
+                .Include(k => k.Category)
+                .ToListAsync();
+
+            return result;
+        }
 
         /// <summary>
         /// アイテムの登録を行う
@@ -137,6 +154,18 @@ namespace Backend.Repository
         }
 
         /// <summary>
+        /// アイテムの一括登録を行う
+        /// </summary>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public async Task<int> RegistKakeiboItemListAsync(List<KakeiboItem> items)
+        {
+            await this._dbContext.KakeiboItem.AddRangeAsync(items);
+
+            return await this._dbContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// 更新・削除を行う
         /// </summary>
         /// <param name="prm"></param>
@@ -144,6 +173,56 @@ namespace Backend.Repository
         public async Task<int> UpdateKakeiboItemAsync(KakeiboItem prm)
         {
             this._dbContext.KakeiboItem.Update(prm);
+
+            return await this._dbContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 一括更新・削除を行う
+        /// </summary>
+        /// <param name="prm"></param>
+        /// <returns></returns>
+        public async Task<int> UpdateKakeiboItemListAsync(List<KakeiboItem> prm)
+        {
+            this._dbContext.KakeiboItem.UpdateRange(prm);
+
+            return await this._dbContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 固定費管理データを取得する
+        /// </summary>
+        /// <param name="frequencyId"></param>
+        /// <returns></returns>
+        public async Task<KakeiboItemFrequency?> GetKakeiboItemFrequencyAsync(int frequencyId)
+        {
+            KakeiboItemFrequency? frequency = await this._dbContext.KakeiboItemFrequency
+                .Where(e => e.Id == frequencyId && e.DeleteDate == null)
+                .FirstOrDefaultAsync();
+
+            return frequency;
+        }
+
+        /// <summary>
+        /// 固定費管理テーブルに登録する
+        /// </summary>
+        /// <param name="frequency"></param>
+        /// <returns></returns>
+        public async Task<int> RegistKakeiboItemFrequencyAsync(KakeiboItemFrequency frequency)
+        {
+            await this._dbContext.KakeiboItemFrequency.AddAsync(frequency);
+
+            return await this._dbContext.SaveChangesAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 固定費管理テーブルを更新する
+        /// </summary>
+        /// <param name="frequency"></param>
+        /// <returns></returns>
+        public async Task<int> UpdateKakeiboItemFrequencyAsync(KakeiboItemFrequency frequency)
+        {
+            this._dbContext.KakeiboItemFrequency.Update(frequency);
 
             return await this._dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
