@@ -1,59 +1,141 @@
-﻿using WebApplication.Dto;
+﻿using Backend.Annotation;
+using Backend.Dto.service.user;
+using Backend.Model;
+using Backend.Repository;
 using WebApplication.Model;
 using WebApplication.Repository;
 
 namespace WebApplication.service
 {
-    public class UserDataService
+    [Component]
+    public class UserDataService(
+        UserDataRepository _userDataRepository,
+        KakeiboRepository _kakeiboRepository
+        )
     {
-        private readonly UserDataRepository repository;
+        private readonly UserDataRepository userDataRepository = _userDataRepository;
 
-        public UserDataService(UserDataRepository repository)
+        private readonly KakeiboRepository kakeiboRepository = _kakeiboRepository;
+
+
+        /// <summary>
+        /// ユーザー・家計簿データの取得
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public async Task<GetUserDataResponse> GetUserDataAsync(GetUserDataRequest req)
         {
-            this.repository = repository;
+            // 該当ユーザー取得
+            Users? user = await this.userDataRepository.GetUserAsync(req.Id);
+
+            // レスポンス返却
+            GetUserDataResponse response = new()
+            {
+                UserName = user.Name,
+                Email = user.Email,
+                KakeiboName = user.Kakeibo.KakeiboName,
+                KakeiboExplanation = user.Kakeibo.KakeiboExplanation
+            };
+
+            return response;
         }
 
-        public UserResponse GetAllUserData()
+        /// <summary>
+        /// ユーザー新規登録・家計簿データの作成
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public async Task<RegistUserResponse> RegistAsync(RegistUserRequest req)
         {
-            List<User> users = new List<User>();
-
-            List<UserData> userList = this.repository.SelectAllData();
-
-            userList.ForEach(user =>
+            // ユーザーデータの作成
+            Users data = new()
             {
-                var res = new User
+                Name = req.UserName,
+                Email = req.Email,
+                UserHash = Guid.NewGuid().ToString(), // 仮のハッシュ生成
+            };
+
+            // TODO: トランザクションの検討
+            int userId = await this.userDataRepository.UserRigistAsync(data);
+
+            // 家計簿データの作成
+            Kakeibo kakeibo = new()
+            {
+                UserId = userId,
+                KakeiboName = req.KakeiboName,
+                KakeiboExplanation = req.KakeiboExplanation,
+            };
+
+            await this.kakeiboRepository.RegistKakeiboAsync(kakeibo);
+
+            // レスポンス返却
+            return new RegistUserResponse(){ UserId = userId };
+        }
+
+        /// <summary>
+        /// ユーザーデータと家計簿データを更新する
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
+        /// <exception cref="Exception"></exception>
+        public async Task<UpdateUserResponse> UpdateAsync(UpdateUserRequest req)
+        {
+            // 該当ユーザー取得
+            Users? user = await this.userDataRepository.GetUserAsync(req.UserId);
+
+            if (!string.IsNullOrEmpty(req.UserName) || !string.IsNullOrEmpty(req.Email))
+            {
+                //TODO: エラーハンドリングは400で
+                if (user == null)
                 {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email
-                };
-                users.Add(res);
-            });
+                    throw new KeyNotFoundException($"User with ID {req.UserId} not found.");
+                }
 
-            UserResponse response = new UserResponse
+                // ユーザー情報更新
+                user.Name = req.UserName ?? user.Name;
+                user.Email = req.Email ?? user.Email;
+            }
+
+            if(!string.IsNullOrEmpty(req.KakeiboName) || !string.IsNullOrEmpty(req.KakeiboExplanation))
             {
-                Users = users
-            };
+                if (user.Kakeibo == null)
+                {
+                    throw new Exception("家計簿が存在しません");
+                }
 
-            return response;
+                // 家計簿更新
+                user.Kakeibo.KakeiboName = req.KakeiboName ?? user.Kakeibo.KakeiboName;
+                user.Kakeibo.KakeiboExplanation = req.KakeiboExplanation ?? user.Kakeibo.KakeiboExplanation;
+            }
+
+            // 情報更新
+            int userId = await this.userDataRepository.UpdateUserAsync(user);
+
+            return new UpdateUserResponse() { UserId = userId };
         }
 
-        public RegistResponse RegistUser(RegistRequest request)
+        /// <summary>
+        /// ユーザーデータの削除＆家計簿データの削除
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<DeleteUserResponse> DeleteAsync(DeleteUserRequest req)
         {
-            UserData data = new UserData
+            Users? user = await this.userDataRepository.GetUserAsync(req.UserId);
+
+            if (user == null)
             {
-                UserName = request.UserName,
-                Email = request.Email
-            };
+                throw new Exception("ユーザーが存在しません");
+            }
 
-            this.repository.UserRigist(data);
+            user.DeleteDate = DateTime.Now;
+            user.Kakeibo.DeleteDate = DateTime.Now;
 
-            RegistResponse response = new RegistResponse
-            {
-                Id = this.repository.GetUserId(request.Email)
-            };
+            int userId = await this.userDataRepository.UpdateUserAsync(user);
 
-            return response;
+            return new DeleteUserResponse() { UserId = userId };
         }
     }
 }

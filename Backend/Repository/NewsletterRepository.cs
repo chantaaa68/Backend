@@ -1,28 +1,45 @@
-﻿using Backend.Model;
+﻿using Backend.Annotation;
+using Backend.Model;
+using Microsoft.EntityFrameworkCore;
 using WebApplication.Context;
 
 namespace Backend.Repository
 {
-    public class NewsletterRepository
+    [Component]
+    public class NewsletterRepository(AWSDbContext _dbContext)
     {
-        private readonly AWSDbContext _dbContext;
+        private readonly AWSDbContext dbContext = _dbContext;
 
-        public NewsletterRepository(AWSDbContext dbContext)
+        /// <summary>
+        /// テンプレートの登録
+        /// </summary>
+        /// <param name="newsletter"></param>
+        public async Task<int> ResistNewsletterTemplateAsync(NewsletterTemplate newsletter)
         {
-            this._dbContext = dbContext;
+            await this.dbContext.NewsletterTemplate.AddAsync(newsletter);
+
+            return await this.dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public void NewsletterResist(Newsletter newsletter)
+        /// <summary>
+        /// テンプレートの更新
+        /// </summary>
+        /// <param name="newsletter"></param>
+        public async Task<int> UpdsateNewsletterTemplateAsync(NewsletterTemplate newsletter)
         {
-            this._dbContext.Newsletters.Add(newsletter);
+            this.dbContext.NewsletterTemplate.Update(newsletter);
 
-            this._dbContext.SaveChanges();
+            return await this.dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public Newsletter GetNewsletterById(int id)
+        /// <summary>
+        /// メールテンプレートを取得する
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<NewsletterTemplate?> GetNewsletterById(int id)
         {
-            return this._dbContext.Newsletters.FirstOrDefault(n => n.Id == id) 
-                   ?? throw new KeyNotFoundException($"Newsletter with ID {id} not found.");
+            return await this.dbContext.NewsletterTemplate.Where(n => n.Id == id && n.DeleteDate == null).FirstOrDefaultAsync();
         }
     }
 }

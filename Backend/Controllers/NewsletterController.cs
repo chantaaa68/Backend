@@ -1,29 +1,48 @@
-﻿using Backend.service;
+﻿using Backend.Annotation;
+using Backend.Dto.service.newsletter;
+using Backend.service;
 using Microsoft.AspNetCore.Mvc;
-using static Backend.Dto.NewsletterDto;
 
 namespace Backend.Controllers
 {
+    [Component]
     [Route("api/[controller]/[action]")]
-    public class NewsletterController: ControllerBase
+    public class NewsletterController(NewsletterService _newsletterService) : ControllerBase
     {
-        private readonly NewsletterService newsletterService;
-        public NewsletterController(NewsletterService newsletterService)
-        {
-            this.newsletterService = newsletterService;
-        }
+        private readonly NewsletterService newsletterService = _newsletterService;
+
+        /// <summary>
+        /// テンプレートを登録する
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         [HttpPost]
-        public IActionResult Register(NewsletterRigistRequest request)
+        public async Task<RigistNewsletterResponse> RigistNewsletterAsync([FromBody] RigistNewsletterRequest req)
         {
-            this.newsletterService.NewsletterResist(request);
-            return Ok();
+           return await this.newsletterService.ResistNewsletterAsync(req);
         }
+
+        /// <summary>
+        /// テンプレートを更新する
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         [HttpPost]
-        public IActionResult SendMail(NewsletterSendRequest request)
+        public async Task<UpdateNewsletterResponse> UpdateNewsletterAsync([FromBody] UpdateNewsletterRequest req)
         {
-            var response = this.newsletterService.NewsletterSend(request);
-            return Ok(response);
+            return await this.newsletterService.UpdateNewsletterAsync(req);
+        }
+
+        /// <summary>
+        /// メール送信
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<SendNewsletterResponse> SendMailAsync([FromBody] SendNewsletterRequest request)
+        {
+            return await this.newsletterService.SendNewsletterAsync(request);
+
         }
     }
-   
 }

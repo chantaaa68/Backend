@@ -1,45 +1,60 @@
-﻿using WebApplication.Context;
-using WebApplication.Dto;
+﻿using Backend.Annotation;
+using Microsoft.EntityFrameworkCore;
+using WebApplication.Context;
 using WebApplication.Model;
 
 namespace WebApplication.Repository
 {
-    public class UserDataRepository
+    [Component]
+    public class UserDataRepository(AWSDbContext dbContext)
     {
-        private readonly AWSDbContext _dbContext;
+        private readonly AWSDbContext _dbContext = dbContext;
 
-        public UserDataRepository(AWSDbContext dbContext)
+        /// <summary>
+        /// IDから対象のユーザーと家計簿のデータを取得
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<Users?> GetUserAsync(int id)
         {
-            this._dbContext = dbContext;
+            return await this._dbContext.Users.Where(u => u.Id == id && u.DeleteDate == null)
+                                              .Include(u => u.Kakeibo)
+                                              .FirstOrDefaultAsync();
         }
 
-        public List<UserData> SelectAllData()
+        /// <summary>
+        /// ユーザー登録を実施する
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<int> UserRigistAsync(Users request)
         {
-            var userData = _dbContext.UserDatas.ToList();
+            this._dbContext.Users.Add(request);
 
-            return userData;
+            return await this._dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public UserData UserRigist(UserData request)
+        /// <summary>
+        /// ユーザーの更新を実施する
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<int> UpdateUserAsync(Users request)
         {
-            this._dbContext.UserDatas.Add(request);
+            this._dbContext.Users.Add(request);
 
-            this._dbContext.SaveChanges();
-
-            return request;
+            return await this._dbContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        public int GetUserId(string email)
+        /// <summary>
+        /// ユーザーIDからユーザー情報だけを取得する
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
+        public Users? GetUserById(int id)
         {
-            var data = this._dbContext.UserDatas.Where(e => e.Email == email).ToList();
-
-            return data[0].Id;
-        }
-
-        public UserData GetUserById(int id)
-        {
-            return this._dbContext.UserDatas.FirstOrDefault(u => u.Id == id)
-                   ?? throw new KeyNotFoundException($"User with ID {id} not found.");
+            return this._dbContext.Users.FirstOrDefault(u => u.Id == id);
         }
     }
 }

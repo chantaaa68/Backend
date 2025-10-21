@@ -1,30 +1,58 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WebApplication.Dto;
+﻿using Backend.Annotation;
+using Backend.Dto.service.user;
+using Microsoft.AspNetCore.Mvc;
 using WebApplication.service;
-using static Backend.Dto.NewsletterDto;
 
 namespace Backend.Controllers
 {
+    [Component]
     [Route("api/[controller]/[action]")]
-    public class UserController : ControllerBase
+    public class UserController(UserDataService _userDataService) : ControllerBase
     {
-        private readonly UserDataService service;
+        private readonly UserDataService userDataService = _userDataService;
 
-        public UserController(UserDataService service)
-        {
-            this.service = service;
-        }
-
+        /// <summary>
+        /// ユーザー・家計簿データの取得
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
         [HttpGet]
-        public IActionResult Index()
+        public async Task<GetUserDataResponse> GetUserDataAsync([FromQuery] GetUserDataRequest req)
         {
-            return Ok(this.service.GetAllUserData());
+            return await this.userDataService.GetUserDataAsync(req);
         }
 
+        /// <summary>
+        /// ユーザーと家計簿情報を登録する
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
-        public IActionResult Regist(RegistRequest request)
+        public async Task<RegistUserResponse> RegistAsync([FromBody] RegistUserRequest req)
         {
-            return Ok(this.service.RegistUser(request));
+            return await this.userDataService.RegistAsync(req);
+        }
+
+        /// <summary>
+        /// ユーザー・家計簿情報を更新する
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<UpdateUserResponse> UpdateAsync([FromBody] UpdateUserRequest req)
+        {
+            return await this.userDataService.UpdateAsync(req);
+        }
+
+        /// <summary>
+        /// ユーザー・家計簿データを削除する
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<DeleteUserResponse> DeleteAsync([FromBody] DeleteUserRequest req)
+        {
+            return await this.userDataService.DeleteAsync(req);
         }
     }
 }

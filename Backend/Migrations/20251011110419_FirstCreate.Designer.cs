@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication.Context;
 
@@ -10,9 +11,11 @@ using WebApplication.Context;
 namespace Backend.Migrations
 {
     [DbContext(typeof(AWSDbContext))]
-    partial class AWSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251011110419_FirstCreate")]
+    partial class FirstCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,12 +28,6 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasComment("ID");
-
-                    b.Property<string>("CategoryName")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasComment("カテゴリ名");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime(6)")
@@ -52,43 +49,6 @@ namespace Backend.Migrations
                         .HasColumnType("int")
                         .HasComment("家計簿テーブルID");
 
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("datetime(6)")
-                        .HasComment("更新日時");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IconId")
-                        .IsUnique();
-
-                    b.HasIndex("KakeiboID");
-
-                    b.ToTable("Category");
-                });
-
-            modelBuilder.Entity("Backend.Model.CategoryDefault", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasComment("ID");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime(6)")
-                        .HasComment("登録日時");
-
-                    b.Property<DateTime?>("DeleteDate")
-                        .HasColumnType("datetime(6)")
-                        .HasComment("削除日時");
-
-                    b.Property<int>("IconId")
-                        .HasColumnType("int")
-                        .HasComment("アイコンID");
-
-                    b.Property<bool>("InoutFlg")
-                        .HasColumnType("tinyint(1)")
-                        .HasComment("出入金フラグ");
-
                     b.Property<string>("KategoryName")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -104,7 +64,9 @@ namespace Backend.Migrations
                     b.HasIndex("IconId")
                         .IsUnique();
 
-                    b.ToTable("CategoryDefault");
+                    b.HasIndex("KakeiboID");
+
+                    b.ToTable("Category");
                 });
 
             modelBuilder.Entity("Backend.Model.Icon", b =>
@@ -118,7 +80,7 @@ namespace Backend.Migrations
                         .HasColumnType("datetime(6)")
                         .HasComment("登録日時");
 
-                    b.Property<string>("DefaultIconName")
+                    b.Property<string>("DefalultIconName")
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasComment("表示名");
@@ -202,9 +164,19 @@ namespace Backend.Migrations
                         .HasColumnType("datetime(6)")
                         .HasComment("削除日時");
 
-                    b.Property<int>("FrequencyId")
+                    b.Property<DateTime?>("FixedEndDate")
+                        .HasMaxLength(20)
+                        .HasColumnType("datetime(6)")
+                        .HasComment("固定費終了日時");
+
+                    b.Property<DateTime?>("FixedStartDate")
+                        .HasMaxLength(20)
+                        .HasColumnType("datetime(6)")
+                        .HasComment("固定費開始日時");
+
+                    b.Property<int>("Frequency")
                         .HasColumnType("int")
-                        .HasComment("固定費管理ID");
+                        .HasComment("固定費頻度");
 
                     b.Property<bool>("InoutFlg")
                         .HasColumnType("tinyint(1)")
@@ -236,74 +208,9 @@ namespace Backend.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("FrequencyId");
-
                     b.HasIndex("KakeiboId");
 
                     b.ToTable("KakeiboItem");
-                });
-
-            modelBuilder.Entity("Backend.Model.KakeiboItemFrequency", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasComment("ID");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int")
-                        .HasComment("カテゴリID");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime(6)")
-                        .HasComment("登録日時");
-
-                    b.Property<DateTime?>("DeleteDate")
-                        .HasColumnType("datetime(6)")
-                        .HasComment("削除日時");
-
-                    b.Property<DateTime?>("FixedEndDate")
-                        .HasMaxLength(20)
-                        .HasColumnType("datetime(6)")
-                        .HasComment("固定費終了日時");
-
-                    b.Property<DateTime?>("FixedStartDate")
-                        .HasMaxLength(20)
-                        .HasColumnType("datetime(6)")
-                        .HasComment("固定費開始日時");
-
-                    b.Property<int>("Frequency")
-                        .HasColumnType("int")
-                        .HasComment("固定費頻度");
-
-                    b.Property<bool>("InoutFlg")
-                        .HasColumnType("tinyint(1)")
-                        .HasComment("出入金フラグ");
-
-                    b.Property<int>("ItemAmount")
-                        .HasColumnType("int")
-                        .HasComment("金額");
-
-                    b.Property<string>("ItemName")
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasComment("名前");
-
-                    b.Property<int>("KakeiboId")
-                        .HasColumnType("int")
-                        .HasComment("家計簿テーブルID");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("datetime(6)")
-                        .HasComment("更新日時");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("KakeiboId");
-
-                    b.ToTable("KakeiboItemFrequency");
                 });
 
             modelBuilder.Entity("Backend.Model.NewsletterTemplate", b =>
@@ -403,17 +310,6 @@ namespace Backend.Migrations
                     b.Navigation("Kakeibo");
                 });
 
-            modelBuilder.Entity("Backend.Model.CategoryDefault", b =>
-                {
-                    b.HasOne("Backend.Model.Icon", "Icon")
-                        .WithOne("CategoryDefault")
-                        .HasForeignKey("Backend.Model.CategoryDefault", "IconId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Icon");
-                });
-
             modelBuilder.Entity("Backend.Model.Kakeibo", b =>
                 {
                     b.HasOne("WebApplication.Model.Users", "User")
@@ -433,35 +329,8 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Model.KakeiboItemFrequency", "KakeiboItemFrequency")
-                        .WithMany("KakeiboItems")
-                        .HasForeignKey("FrequencyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Backend.Model.Kakeibo", "Kakeibo")
                         .WithMany("KakeiboItems")
-                        .HasForeignKey("KakeiboId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Kakeibo");
-
-                    b.Navigation("KakeiboItemFrequency");
-                });
-
-            modelBuilder.Entity("Backend.Model.KakeiboItemFrequency", b =>
-                {
-                    b.HasOne("Backend.Model.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Backend.Model.Kakeibo", "Kakeibo")
-                        .WithMany("KakeiboItemFrequencies")
                         .HasForeignKey("KakeiboId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -475,22 +344,12 @@ namespace Backend.Migrations
                 {
                     b.Navigation("Category")
                         .IsRequired();
-
-                    b.Navigation("CategoryDefault")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Backend.Model.Kakeibo", b =>
                 {
                     b.Navigation("Categories");
 
-                    b.Navigation("KakeiboItemFrequencies");
-
-                    b.Navigation("KakeiboItems");
-                });
-
-            modelBuilder.Entity("Backend.Model.KakeiboItemFrequency", b =>
-                {
                     b.Navigation("KakeiboItems");
                 });
 

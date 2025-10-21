@@ -1,77 +1,85 @@
-﻿using Backend.Model;
+﻿using Backend.Annotation;
+using Backend.Dto.service.newsletter;
+using Backend.Model;
 using Backend.Repository;
-using MailKit.Security;
-using MimeKit;
-using Org.BouncyCastle.Crypto.Macs;
-using WebApplication.Repository;
-using static Backend.Dto.NewsletterDto;
+using Backend.Utility;
+using Backend.Utility.Dto;
 
 namespace Backend.service
 {
-    public class NewsletterService
+    [Component]
+    public class NewsletterService(
+        NewsletterRepository _newsletterRepository,
+        SendMail _sendMail)
     {
-        private readonly NewsletterRepository newsletterRepository;
+        private readonly NewsletterRepository newsletterRepository = _newsletterRepository;
 
-        private readonly UserDataRepository userDataRepository;
+        private readonly SendMail sendMail = _sendMail;
 
-        public NewsletterService(NewsletterRepository newsletterRepository, UserDataRepository userDataRepository)
+        /// <summary>
+        /// メールテンプレートの登録
+        /// </summary>
+        /// <param name="req"></param>
+        public async Task<RigistNewsletterResponse> ResistNewsletterAsync(RigistNewsletterRequest req)
         {
-            this.newsletterRepository = newsletterRepository;
-            this.userDataRepository = userDataRepository;
-        }
-
-        public void NewsletterResist(NewsletterRigistRequest request)
-        {
-            var newsletter = new Newsletter
+            var newsletter = new NewsletterTemplate
             {
-                Title = request.Title,
-                Content = request.Content
+                MailTitle = req.Title,
+                MailBody = req.MailBody,
             };
-            this.newsletterRepository.NewsletterResist(newsletter);
-        }
 
-        public NewsletterSendResponse NewsletterSend(NewsletterSendRequest request)
-        {
-
-            var newsletter = this.newsletterRepository.GetNewsletterById(request.NewsletterId);
-
-            var user = this.userDataRepository.GetUserById(request.UserId);
-
-            int sendCount = 1;
-
-            // ここでメール送信処理を実装する
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("chan.taaaTest", "noreply.tateyama@gmail.com")); // 送信者のメールアドレスを設定
-            message.To.Add(new MailboxAddress(user.UserName, user.Email)); // 受信者のメールアドレスを設定
-            message.Subject = newsletter.Title; // メールのタイトルを設定
-            message.Body = new TextPart("plain")
+            RigistNewsletterResponse response = new()
             {
-                Text = newsletter.Content // メールの本文を設定
+                Count = await this.newsletterRepository.ResistNewsletterTemplateAsync(newsletter)
             };
-            try
-            {
-                using (var client = new MailKit.Net.Smtp.SmtpClient())
-                {
-                    Console.WriteLine("メール送信 start");
-                    client.Connect("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    client.Authenticate("noreply.tateyama@gmail.com", "vhqbuojsonlfgcxy"); 
-                    client.Send(message);
-                    client.Disconnect(true);
-                    Console.WriteLine("メール送信 end");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"メール送信に失敗しました: {ex.Message}");
-                throw;
-            }
 
-
-            var response = new NewsletterSendResponse
-            {
-                sendCount = sendCount
-            };
             return response;
+        }
+
+        /// <summary>
+        /// メールテンプレートの更新
+        /// </summary>
+        /// <param name="req"></param>
+        public async Task<UpdateNewsletterResponse> UpdateNewsletterAsync(UpdateNewsletterRequest req)
+        {
+            NewsletterTemplate? template = await this.newsletterRepository.GetNewsletterById(req.Id);
+
+            if (template == null)
+            {
+                throw new Exception("テンプレートが存在しません");
+            }
+            else
+            {
+                template.MailTitle = req.Title;
+                template.MailBody = req.MailBody;
+
+                UpdateNewsletterResponse response = new()
+                {
+                    Count = await this.newsletterRepository.ResistNewsletterTemplateAsync(template)
+                };
+
+                return response;
+            }
+        }
+
+        /// <summary>
+        /// メール送信
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public async Task<SendNewsletterResponse> SendNewsletterAsync(SendNewsletterRequest req)
+        {
+            int sendCount = await this.sendMail.SendNewsletterAsync(new SendMailParameter()
+            {
+                NewsletterId = req.NewsletterId,
+                ItemId = req.ItemId,
+                UserId = req.UserId
+            });
+
+            return new SendNewsletterResponse()
+            {
+                SendCount = sendCount
+            };
         }
     }
 }
