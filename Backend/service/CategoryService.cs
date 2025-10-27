@@ -3,6 +3,9 @@ using Backend.Dto.common;
 using Backend.Dto.service.category;
 using Backend.Model;
 using Backend.Repository;
+using Backend.Utility;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.service
 {
@@ -24,7 +27,7 @@ namespace Backend.service
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<GetCategoryDataResponse> GetCategoryDataAsync(GetCategoryDataRequest req)
+        public async Task<IActionResult> GetCategoryDataAsync(GetCategoryDataRequest req)
         {
             //ユーザー登録カテゴリの取得
             // ユーザーIDを基に家計簿IDを取得してセット
@@ -36,10 +39,12 @@ namespace Backend.service
             if (userCategoryItems.Count == 0)
             {
                 //ユーザー登録カテゴリが存在しない場合、デフォルトカテゴリを返す
-                return new GetCategoryDataResponse
+                GetCategoryDataResponse response = new()
                 {
                     Categories = categoryItems
                 };
+
+                return ApiResponseHelper.Success(response);
             }
             else
             {
@@ -52,10 +57,12 @@ namespace Backend.service
                     mergedCategories[categoryItem.IconName] = categoryItem;
                 }
 
-                return new GetCategoryDataResponse
+                GetCategoryDataResponse response = new()
                 {
                     Categories = mergedCategories.Values.ToList()
                 };
+
+                return ApiResponseHelper.Success(response);
             }
         }
 
@@ -64,7 +71,7 @@ namespace Backend.service
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<RegistCategoryResponse> RegistCategoryAsync(RegistCategoryRequest req)
+        public async Task<IActionResult> RegistCategoryAsync(RegistCategoryRequest req)
         {
             Category category = new()
             {
@@ -79,7 +86,7 @@ namespace Backend.service
                 CategoryId = await this.categoryRepository.RegistCategoryAsync(category)
             };
 
-            return response;
+            return ApiResponseHelper.Success(response);
         }
 
         /// <summary>
@@ -88,7 +95,7 @@ namespace Backend.service
         /// <param name="req"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<UpdateCategoryResponse> UpdateCategoryAsync(UpdateCategoryRequest req)
+        public async Task<IActionResult> UpdateCategoryAsync(UpdateCategoryRequest req)
         {
             Category? category = await this.categoryRepository.GetCategoryByIdAsync(req.Id);
 
@@ -107,7 +114,7 @@ namespace Backend.service
                     CategoryId = await this.categoryRepository.UpdateCategoryAsync(category)
                 };
 
-                return response;
+                return ApiResponseHelper.Success(response);
             }
         }
     }
