@@ -30,6 +30,11 @@ namespace WebApplication.service
             // 該当ユーザー取得
             Users? user = await this.userDataRepository.GetUserAsync(req.Id);
 
+            if (user == null)
+            {
+                return ApiResponseHelper.Fail("ユーザーが存在しません");
+            }
+
             // レスポンス返却
             GetUserDataResponse response = new()
             {
@@ -50,7 +55,7 @@ namespace WebApplication.service
         public async Task<IActionResult> RegistAsync(RegistUserRequest req)
         {
             // ユーザーデータの作成
-            Users data = new()
+            Users user = new()
             {
                 Name = req.UserName,
                 Email = req.Email,
@@ -58,12 +63,12 @@ namespace WebApplication.service
             };
 
             // TODO: トランザクションの検討
-            int userId = await this.userDataRepository.UserRigistAsync(data);
+            await this.userDataRepository.UserRigistAsync(user);
 
             // 家計簿データの作成
             Kakeibo kakeibo = new()
             {
-                UserId = userId,
+                UserId = user.Id,
                 KakeiboName = req.KakeiboName,
                 KakeiboExplanation = req.KakeiboExplanation,
             };
@@ -73,7 +78,7 @@ namespace WebApplication.service
             // レスポンス返却
             RegistUserResponse response =  new()
             { 
-                UserId = userId 
+                UserId = user.Id 
             };
 
             return ApiResponseHelper.Success(response);
@@ -91,13 +96,13 @@ namespace WebApplication.service
             // 該当ユーザー取得
             Users? user = await this.userDataRepository.GetUserAsync(req.UserId);
 
+            if (user == null)
+            {
+                return ApiResponseHelper.Fail("ユーザーが存在しません");
+            }
+
             if (!string.IsNullOrEmpty(req.UserName) || !string.IsNullOrEmpty(req.Email))
             {
-                if (user == null)
-                {
-                    return ApiResponseHelper.Fail("ユーザーが存在しません");
-                }
-
                 // ユーザー情報更新
                 user.Name = req.UserName ?? user.Name;
                 user.Email = req.Email ?? user.Email;
@@ -105,11 +110,6 @@ namespace WebApplication.service
 
             if(!string.IsNullOrEmpty(req.KakeiboName) || !string.IsNullOrEmpty(req.KakeiboExplanation))
             {
-                if (user.Kakeibo == null)
-                {
-                    return ApiResponseHelper.Fail("家計簿が存在しません");
-                }
-
                 // 家計簿更新
                 user.Kakeibo.KakeiboName = req.KakeiboName ?? user.Kakeibo.KakeiboName;
                 user.Kakeibo.KakeiboExplanation = req.KakeiboExplanation ?? user.Kakeibo.KakeiboExplanation;

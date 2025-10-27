@@ -4,6 +4,7 @@ using Backend.Model;
 using Backend.Repository;
 using Backend.Utility;
 using Backend.Utility.Dto;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.service
 {
@@ -20,7 +21,7 @@ namespace Backend.service
         /// メールテンプレートの登録
         /// </summary>
         /// <param name="req"></param>
-        public async Task<RigistNewsletterResponse> ResistNewsletterAsync(RigistNewsletterRequest req)
+        public async Task<IActionResult> ResistNewsletterAsync(RigistNewsletterRequest req)
         {
             var newsletter = new NewsletterTemplate
             {
@@ -33,20 +34,20 @@ namespace Backend.service
                 Count = await this.newsletterRepository.ResistNewsletterTemplateAsync(newsletter)
             };
 
-            return response;
+            return ApiResponseHelper.Success(response);
         }
 
         /// <summary>
         /// メールテンプレートの更新
         /// </summary>
         /// <param name="req"></param>
-        public async Task<UpdateNewsletterResponse> UpdateNewsletterAsync(UpdateNewsletterRequest req)
+        public async Task<IActionResult> UpdateNewsletterAsync(UpdateNewsletterRequest req)
         {
             NewsletterTemplate? template = await this.newsletterRepository.GetNewsletterById(req.Id);
 
             if (template == null)
             {
-                throw new Exception("テンプレートが存在しません");
+                return ApiResponseHelper.Fail("テンプレートが存在しません。");
             }
             else
             {
@@ -58,7 +59,7 @@ namespace Backend.service
                     Count = await this.newsletterRepository.ResistNewsletterTemplateAsync(template)
                 };
 
-                return response;
+                return ApiResponseHelper.Success(response);
             }
         }
 
@@ -67,7 +68,7 @@ namespace Backend.service
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<SendNewsletterResponse> SendNewsletterAsync(SendNewsletterRequest req)
+        public async Task<IActionResult> SendNewsletterAsync(SendNewsletterRequest req)
         {
             int sendCount = await this.sendMail.SendNewsletterAsync(new SendMailParameter()
             {
@@ -76,10 +77,12 @@ namespace Backend.service
                 UserId = req.UserId
             });
 
-            return new SendNewsletterResponse()
+            SendNewsletterResponse response =  new()
             {
                 SendCount = sendCount
             };
+
+            return ApiResponseHelper.Success(response);
         }
     }
 }
