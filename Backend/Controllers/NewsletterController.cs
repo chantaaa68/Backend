@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
-    [Component]
+    [AutoDI]
+    [ApiController]
     [Route("api/[controller]/[action]")]
     public class NewsletterController(NewsletterService _newsletterService) : ControllerBase
     {

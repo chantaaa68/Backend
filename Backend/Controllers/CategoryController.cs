@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace Backend.Controllers
 {
 
-    [Component]
+    [AutoDI]
+    [ApiController]
     [Route("api/[controller]/[action]")]
-    public class CategoryController(CategoryService _categoryService)
+    public class CategoryController(CategoryService _categoryService) : ControllerBase
     {
         public readonly CategoryService categoryService = _categoryService;
 

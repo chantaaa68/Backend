@@ -4,12 +4,11 @@ using Backend.Dto.service.category;
 using Backend.Model;
 using Backend.Repository;
 using Backend.Utility;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.service
 {
-    [Component]
+    [AutoDI]
     public class CategoryService(
         CategoryRepositoy _categoryRepository,
         KakeiboRepository _kakeiboRepository,

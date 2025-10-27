@@ -5,7 +5,7 @@ using WebApplication.Model;
 
 namespace WebApplication.Repository
 {
-    [Component]
+    [AutoDI]
     public class UserDataRepository(AWSDbContext dbContext)
     {
         private readonly AWSDbContext _dbContext = dbContext;

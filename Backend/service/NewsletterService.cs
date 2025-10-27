@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.service
 {
-    [Component]
+    [AutoDI]
     public class NewsletterService(
         NewsletterRepository _newsletterRepository,
         SendMail _sendMail)

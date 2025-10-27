@@ -9,7 +9,7 @@ using WebApplication.Repository;
 
 namespace WebApplication.service
 {
-    [Component]
+    [AutoDI]
     public class UserDataService(
         UserDataRepository _userDataRepository,
         KakeiboRepository _kakeiboRepository

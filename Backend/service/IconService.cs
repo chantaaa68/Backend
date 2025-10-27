@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.service
 {
-    [Component]
+    [AutoDI]
     public class IconService(IconRepository _repository)
     {
         public readonly IconRepository repository = _repository;

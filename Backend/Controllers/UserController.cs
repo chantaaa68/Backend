@@ -5,7 +5,8 @@ using WebApplication.service;
 
 namespace Backend.Controllers
 {
-    [Component]
+    [AutoDI]
+    [ApiController]
     [Route("api/[controller]/[action]")]
     public class UserController(UserDataService _userDataService) : ControllerBase
     {

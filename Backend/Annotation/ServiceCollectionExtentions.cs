@@ -9,13 +9,13 @@
         /// <param name="assemblyNames">コンポーネントを検索するアセンブリの名前一覧</param>
         public static IServiceCollection RegisterComponents(this IServiceCollection services, params string[] assemblyNames)
         {
-            foreach (var ci in assemblyNames.SelectMany(ComponentLoader.Load))
+            foreach (var ci in assemblyNames.SelectMany(AutoDILoader.Load))
             {
                 var lifetime = ci.Scope switch
                 {
-                    ComponentScope.Singleton => ServiceLifetime.Singleton,
-                    ComponentScope.Scoped => ServiceLifetime.Scoped,
-                    ComponentScope.Transient => ServiceLifetime.Transient,
+                    AutoDIScope.Singleton => ServiceLifetime.Singleton,
+                    AutoDIScope.Scoped => ServiceLifetime.Scoped,
+                    AutoDIScope.Transient => ServiceLifetime.Transient,
                     _ => throw new InvalidOperationException("Unknown ComponentScope value")
                 };
 

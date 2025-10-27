@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Backend.Dto.service.user
+﻿namespace Backend.Dto.service.user
 {
     public class UpdateUserRequest
     {

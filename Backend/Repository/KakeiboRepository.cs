@@ -7,7 +7,7 @@ using WebApplication.Context;
 
 namespace Backend.Repository
 {
-    [Component]
+    [AutoDI]
     public class KakeiboRepository(AWSDbContext dbContext)
     {
         private readonly AWSDbContext _dbContext = dbContext;

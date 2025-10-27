@@ -11,7 +11,7 @@ using static Backend.Utility.Enums;
 
 namespace Backend.service
 {
-    [Component]
+    [AutoDI]
     public class KakeiboService(KakeiboRepository _kakeiboRepositoy,AWSDbContext _dbContext)
     {
 

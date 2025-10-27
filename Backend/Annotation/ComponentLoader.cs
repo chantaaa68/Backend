@@ -2,9 +2,9 @@
 
 namespace Backend.Annotation
 {
-    public static class ComponentLoader
+    public static class AutoDILoader
     {
-        public static IEnumerable<ComponentInfo> Load(string assemblyName)
+        public static IEnumerable<AutoDIInfo> Load(string assemblyName)
         {
             try
             {
@@ -16,23 +16,23 @@ namespace Backend.Annotation
             }
         }
 
-        public static IEnumerable<ComponentInfo> Load(Assembly assembly)
+        public static IEnumerable<AutoDIInfo> Load(Assembly assembly)
         {
             // アセンブリ内のクラスから指定の属性を持つもののみを抽出
             return assembly.GetTypes()
                 .SelectMany(type =>
-                    type.GetCustomAttributes<ComponentAttribute>().Select(attr => (Type: type, Attr: attr)))
-                .Select(x => new ComponentInfo(x.Attr.Scope, x.Attr.TargetType ?? x.Type, x.Type));
+                    type.GetCustomAttributes<AutoDIAttribute>().Select(attr => (Type: type, Attr: attr)))
+                .Select(x => new AutoDIInfo(x.Attr.Scope, x.Attr.TargetType ?? x.Type, x.Type));
         }
 
-        // ComponentAttributeの情報を保持しておくための箱
-        public class ComponentInfo
+        // AutoDIAttributeの情報を保持しておくための箱
+        public class AutoDIInfo
         {
-            public ComponentScope Scope { get; }
+            public AutoDIScope Scope { get; }
             public Type TargetType { get; }
             public Type ImplementType { get; }
 
-            public ComponentInfo(ComponentScope scope, Type targetType, Type implementType)
+            public AutoDIInfo(AutoDIScope scope, Type targetType, Type implementType)
             {
                 Scope = scope;
                 TargetType = targetType;

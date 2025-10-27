@@ -1,12 +1,15 @@
-﻿using Backend.Dto.service;
+﻿using Backend.Annotation;
+using Backend.Dto.service;
 using Backend.Dto.service.kakeibo;
 using Backend.service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [AutoDI]
     [ApiController]
+    [Route("api/[controller]/[action]")]
+    
     public class KakeiboController(KakeiboService service) : ControllerBase
     {
         public KakeiboService _service = service;

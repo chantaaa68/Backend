@@ -1,12 +1,11 @@
 ﻿using Backend.Annotation;
 using Backend.Model;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using WebApplication.Context;
 
 namespace Backend.Repository
 {
-    [Component]
+    [AutoDI]
     public class IconRepository(AWSDbContext _dbContext)
     {
         private readonly AWSDbContext dbContext = _dbContext;
