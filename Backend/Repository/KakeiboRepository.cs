@@ -17,13 +17,20 @@ namespace Backend.Repository
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<int> GetKakeiboIdAsync(int userId)
+        public async Task<int?> GetKakeiboIdAsync(int userId)
         {
             //これを呼び出すとき、家計簿は必ず存在する
-            Kakeibo kakeibo = await this._dbContext.Kakeibo
-                .Where(k => k.UserId == userId && k.DeleteDate == null).FirstAsync();
+            Kakeibo? kakeibo = await this._dbContext.Kakeibo
+                .Where(k => k.UserId == userId && k.DeleteDate == null).FirstOrDefaultAsync();
 
-            return kakeibo.Id;
+            if (kakeibo == null) 
+            {
+                return null;
+            }
+            else
+            {
+                return kakeibo.Id;
+            }
         }
 
         /// <summary>
@@ -31,10 +38,10 @@ namespace Backend.Repository
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<Kakeibo> GetKakeiboAsync(int userId)
+        public async Task<Kakeibo?> GetKakeiboAsync(int userId)
         {
-            Kakeibo result = await this._dbContext.Kakeibo
-                .Where(k => k.UserId == userId && k.DeleteDate == null).FirstAsync();
+            Kakeibo? result = await this._dbContext.Kakeibo
+                .Where(k => k.UserId == userId && k.DeleteDate == null).FirstOrDefaultAsync();
 
             return result;
         }

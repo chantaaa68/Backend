@@ -16,7 +16,7 @@ namespace Backend.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<GetIconListResponse> GetIconListAsync()
+        public async Task<IActionResult> GetIconListAsync()
         {
             return await service.GetIconListAsync();
         }

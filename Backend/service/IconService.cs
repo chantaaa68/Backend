@@ -1,6 +1,8 @@
 ﻿using Backend.Annotation;
 using Backend.Dto.service.icon;
 using Backend.Repository;
+using Backend.Utility;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.service
 {
@@ -9,7 +11,7 @@ namespace Backend.service
     {
         public readonly IconRepository repository = _repository;
 
-        public async Task<GetIconListResponse> GetIconListAsync()
+        public async Task<IActionResult> GetIconListAsync()
         {
             GetIconListResponse response = new()
             {
@@ -21,7 +23,7 @@ namespace Backend.service
                 }).ToList()
             };
 
-            return response;
+            return ApiResponseHelper.Success(response);
         }
     }
 }

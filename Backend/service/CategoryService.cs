@@ -3,6 +3,9 @@ using Backend.Dto.common;
 using Backend.Dto.service.category;
 using Backend.Model;
 using Backend.Repository;
+using Backend.Utility;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.service
 {
@@ -24,11 +27,18 @@ namespace Backend.service
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<GetCategoryDataResponse> GetCategoryDataAsync(GetCategoryDataRequest req)
+        public async Task<IActionResult> GetCategoryDataAsync(GetCategoryDataRequest req)
         {
             //ユーザー登録カテゴリの取得
+            int? kakeiboId = await this.kakeiboRepository.GetKakeiboIdAsync(req.UserId);
+
+            if (kakeiboId == null)
+            {
+                return ApiResponseHelper.Fail("家計簿が存在しません。");
+            }
+
             // ユーザーIDを基に家計簿IDを取得してセット
-            List<CategoryItem> userCategoryItems = await this.categoryRepository.GetCategoryAsync(await this.kakeiboRepository.GetKakeiboIdAsync(req.UserId));
+            List<CategoryItem> userCategoryItems = await this.categoryRepository.GetCategoryAsync(kakeiboId.Value);
 
             //デフォルトカテゴリの取得
             List<CategoryItem> categoryItems = await this.categoryRepository.GetCategoryDefaultAsync();
@@ -36,10 +46,12 @@ namespace Backend.service
             if (userCategoryItems.Count == 0)
             {
                 //ユーザー登録カテゴリが存在しない場合、デフォルトカテゴリを返す
-                return new GetCategoryDataResponse
+                GetCategoryDataResponse response = new()
                 {
                     Categories = categoryItems
                 };
+
+                return ApiResponseHelper.Success(response);
             }
             else
             {
@@ -52,10 +64,12 @@ namespace Backend.service
                     mergedCategories[categoryItem.IconName] = categoryItem;
                 }
 
-                return new GetCategoryDataResponse
+                GetCategoryDataResponse response = new()
                 {
                     Categories = mergedCategories.Values.ToList()
                 };
+
+                return ApiResponseHelper.Success(response);
             }
         }
 
@@ -64,14 +78,26 @@ namespace Backend.service
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<RegistCategoryResponse> RegistCategoryAsync(RegistCategoryRequest req)
+        public async Task<IActionResult> RegistCategoryAsync(RegistCategoryRequest req)
         {
+            int? kakeiboId = await this.kakeiboRepository.GetKakeiboIdAsync(req.UserId);
+            if (kakeiboId == null)
+            {
+                return ApiResponseHelper.Fail("家計簿が存在しません。");
+            }
+
+            int? IconId = await this.iconRepository.GetIconIdAsync(req.IconName);
+
+            if (IconId == null) {
+                return ApiResponseHelper.Fail("指定されたアイコンが存在しません。");
+            }
+
             Category category = new()
             {
-                KakeiboID = await this.kakeiboRepository.GetKakeiboIdAsync(req.UserId),
+                KakeiboID = kakeiboId.Value,
                 CategoryName = req.CategoryName,
                 InoutFlg = req.InoutFlg,
-                IconId = await this.iconRepository.GetIconIdAsync(req.IconName),
+                IconId = IconId.Value
             };
 
             RegistCategoryResponse response = new()
@@ -79,7 +105,7 @@ namespace Backend.service
                 CategoryId = await this.categoryRepository.RegistCategoryAsync(category)
             };
 
-            return response;
+            return ApiResponseHelper.Success(response);
         }
 
         /// <summary>
@@ -88,26 +114,26 @@ namespace Backend.service
         /// <param name="req"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async Task<UpdateCategoryResponse> UpdateCategoryAsync(UpdateCategoryRequest req)
+        public async Task<IActionResult> UpdateCategoryAsync(UpdateCategoryRequest req)
         {
             Category? category = await this.categoryRepository.GetCategoryByIdAsync(req.Id);
 
             if(category == null)
             {
-                throw new Exception("指定されたカテゴリが存在しません。");
+                return ApiResponseHelper.Fail("指定されたカテゴリが存在しません");
             }
             else
             {
                 category.CategoryName = req.CategoryName ?? category.CategoryName;
                 category.InoutFlg = req.InoutFlg ?? category.InoutFlg;
-                category.IconId = req.IconName != null ? await this.iconRepository.GetIconIdAsync(req.IconName) : category.IconId;
+                category.IconId = req.IconName != null ? (int)await this.iconRepository.GetIconIdAsync(req.IconName) : category.IconId;
 
                 UpdateCategoryResponse response = new()
                 {
                     CategoryId = await this.categoryRepository.UpdateCategoryAsync(category)
                 };
 
-                return response;
+                return ApiResponseHelper.Success(response);
             }
         }
     }
