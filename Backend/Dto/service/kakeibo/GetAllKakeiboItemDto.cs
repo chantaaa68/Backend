@@ -1,5 +1,4 @@
 ﻿using Backend.Dto.common;
-using Backend.Dto.repository;
 using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Dto.service.kakeibo

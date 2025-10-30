@@ -1,8 +1,4 @@
-﻿
-
-using Backend.Annotation;
-
-namespace Backend.Utility
+﻿namespace Backend.Utility
 {
     public class Constant
     {

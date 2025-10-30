@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
-    [Component]
+    [AutoDI]
+    [ApiController]
     [Route("api/[controller]/[action]")]
     public class NewsletterController(NewsletterService _newsletterService) : ControllerBase
     {
@@ -17,7 +18,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<RigistNewsletterResponse> RigistNewsletterAsync([FromBody] RigistNewsletterRequest req)
+        public async Task<IActionResult> RigistNewsletterAsync([FromBody] RigistNewsletterRequest req)
         {
            return await this.newsletterService.ResistNewsletterAsync(req);
         }
@@ -28,7 +29,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<UpdateNewsletterResponse> UpdateNewsletterAsync([FromBody] UpdateNewsletterRequest req)
+        public async Task<IActionResult> UpdateNewsletterAsync([FromBody] UpdateNewsletterRequest req)
         {
             return await this.newsletterService.UpdateNewsletterAsync(req);
         }
@@ -39,7 +40,7 @@ namespace Backend.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<SendNewsletterResponse> SendMailAsync([FromBody] SendNewsletterRequest request)
+        public async Task<IActionResult> SendMailAsync([FromBody] SendNewsletterRequest request)
         {
             return await this.newsletterService.SendNewsletterAsync(request);
 

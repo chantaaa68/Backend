@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
-    [Component]
+    [AutoDI]
+    [ApiController]
     [Route("api/[controller]/[action]")]
-    public class IconController(IconService _service)
+    public class IconController(IconService _service) : ControllerBase
     {
         public readonly IconService service = _service;
 
@@ -16,7 +17,7 @@ namespace Backend.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<GetIconListResponse> GetIconListAsync()
+        public async Task<IActionResult> GetIconListAsync()
         {
             return await service.GetIconListAsync();
         }

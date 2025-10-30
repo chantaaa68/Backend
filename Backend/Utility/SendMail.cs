@@ -8,7 +8,7 @@ using WebApplication.Repository;
 
 namespace Backend.Utility
 {
-    [Component]
+    [AutoDI]
     public class SendMail(
         NewsletterRepository _newsletterRepository,
         UserDataRepository _userDataRepsitory, 

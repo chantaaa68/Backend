@@ -1,12 +1,15 @@
-﻿using Backend.Dto.service;
+﻿using Backend.Annotation;
+using Backend.Dto.service;
 using Backend.Dto.service.kakeibo;
 using Backend.service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [AutoDI]
     [ApiController]
+    [Route("api/[controller]/[action]")]
+    
     public class KakeiboController(KakeiboService service) : ControllerBase
     {
         public KakeiboService _service = service;
@@ -17,7 +20,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<UpdateKakeiboResponse> UpdateKakeiboAsync([FromBody] UpdateKakeiboRequest req)
+        public async Task<IActionResult> UpdateKakeiboAsync([FromBody] UpdateKakeiboRequest req)
         {
             return await this._service.UpdateKakeiboAsync(req);
         }
@@ -28,7 +31,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<GetMonthlyResultResponse> GetMonthlyResultAsync([FromQuery] GetMonthlyResultRequest req)
+        public async Task<IActionResult> GetMonthlyResultAsync([FromQuery] GetMonthlyResultRequest req)
         {
             return await this._service.GetMonthlyResultAsync(req);
         }
@@ -39,7 +42,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<GetKakeiboItemDetailResponse> GetKakeiboItemDetailAsync([FromQuery] GetKakeiboItemDetailRequest req)
+        public async Task<IActionResult> GetKakeiboItemDetailAsync([FromQuery] GetKakeiboItemDetailRequest req)
         {
             return await this._service.GetKakeiboItemDetailAsync(req);
         }
@@ -50,7 +53,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<RegistKakeiboItemResponse> RegistKakeiboItemAsync([FromBody] RegistKakeiboItemRequest req)
+        public async Task<IActionResult> RegistKakeiboItemAsync([FromBody] RegistKakeiboItemRequest req)
         {
             return await this._service.RegistKakeiboItemAsync(req);
         }
@@ -61,7 +64,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<UpdateKakeiboItemResponse> UpdateKakeiboItemAsync([FromBody] UpdateKakeiboItemRequest req)
+        public async Task<IActionResult> UpdateKakeiboItemAsync([FromBody] UpdateKakeiboItemRequest req)
         {
             return await this._service.UpdateKakeiboItemAsync(req);
         }
@@ -72,7 +75,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<DeleteKakeiboItemResponse> DeleteKakeiboItemAsync([FromBody] DeleteKakeiboItemRequest req)
+        public async Task<IActionResult> DeleteKakeiboItemAsync([FromBody] DeleteKakeiboItemRequest req)
         {
             return await this._service.DeleteKakeiboItemAsync(req);
         }

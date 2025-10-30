@@ -5,7 +5,8 @@ using WebApplication.service;
 
 namespace Backend.Controllers
 {
-    [Component]
+    [AutoDI]
+    [ApiController]
     [Route("api/[controller]/[action]")]
     public class UserController(UserDataService _userDataService) : ControllerBase
     {
@@ -17,7 +18,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<GetUserDataResponse> GetUserDataAsync([FromQuery] GetUserDataRequest req)
+        public async Task<IActionResult> GetUserDataAsync([FromQuery] GetUserDataRequest req)
         {
             return await this.userDataService.GetUserDataAsync(req);
         }
@@ -28,7 +29,7 @@ namespace Backend.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<RegistUserResponse> RegistAsync([FromBody] RegistUserRequest req)
+        public async Task<IActionResult> RegistAsync([FromBody] RegistUserRequest req)
         {
             return await this.userDataService.RegistAsync(req);
         }
@@ -39,7 +40,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<UpdateUserResponse> UpdateAsync([FromBody] UpdateUserRequest req)
+        public async Task<IActionResult> UpdateAsync([FromBody] UpdateUserRequest req)
         {
             return await this.userDataService.UpdateAsync(req);
         }
@@ -50,7 +51,7 @@ namespace Backend.Controllers
         /// <param name="req"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<DeleteUserResponse> DeleteAsync([FromBody] DeleteUserRequest req)
+        public async Task<IActionResult> DeleteAsync([FromBody] DeleteUserRequest req)
         {
             return await this.userDataService.DeleteAsync(req);
         }

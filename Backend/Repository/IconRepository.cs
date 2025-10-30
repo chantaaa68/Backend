@@ -1,12 +1,11 @@
 ﻿using Backend.Annotation;
 using Backend.Model;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using WebApplication.Context;
 
 namespace Backend.Repository
 {
-    [Component]
+    [AutoDI]
     public class IconRepository(AWSDbContext _dbContext)
     {
         private readonly AWSDbContext dbContext = _dbContext;
@@ -26,13 +25,20 @@ namespace Backend.Repository
         /// </summary>
         /// <param name="defaultIconName"></param>
         /// <returns></returns>
-        public async Task<int> GetIconIdAsync(string defaultIconName)
+        public async Task<int?> GetIconIdAsync(string defaultIconName)
         {
-            Icon icon = await this.dbContext.Icon
+            Icon? icon = await this.dbContext.Icon
                 .Where(i => i.DefaultIconName == defaultIconName && i.DeleteDate == null)
-                .FirstAsync();
-            
-            return icon.Id;
+                .FirstOrDefaultAsync();
+
+            if (icon == null)
+            {
+                return null;
+            }
+            else
+            {
+                return icon.Id;
+            }
         }
     }
 }

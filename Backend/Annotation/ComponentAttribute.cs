@@ -4,21 +4,21 @@
     /// <see cref="Microsoft.Extensions.DependencyInjection.IServiceCollection" />にコンポーネントを自動登録するための属性
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-    public class ComponentAttribute : Attribute
+    public class AutoDIAttribute : Attribute
     {
         /// <summary>
-        /// コンポーネントのライフサイクル。未設定の場合は<see cref="ComponentScope.Scoped"/>。
+        /// コンポーネントのライフサイクル。未設定の場合は<see cref="AutoDIScope.Scoped"/>。
         /// </summary>
-        public ComponentScope Scope { get; set; } = ComponentScope.Scoped;
+        public AutoDIScope Scope { get; set; } = AutoDIScope.Scoped;
 
         /// <summary>
         /// コンポーネントの登録対象の型。未設定の場合はコンポーネント自身の型。
         /// </summary>
         public Type? TargetType { get; set; }
 
-        public ComponentAttribute() { }
+        public AutoDIAttribute() { }
 
-        public ComponentAttribute(ComponentScope scope, Type? targetType = null)
+        public AutoDIAttribute(AutoDIScope scope, Type? targetType = null)
         {
             this.Scope = scope;
             this.TargetType = targetType;

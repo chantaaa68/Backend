@@ -1,9 +1,4 @@
-﻿using Backend.Model;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Backend.Dto.common
+﻿namespace Backend.Dto.common
 {
     public class CategoryItem
     {

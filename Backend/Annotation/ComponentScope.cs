@@ -3,7 +3,7 @@
     /// <summary>
     /// 自動登録するコンポーネントのライフサイクルスコープ。
     /// </summary>
-    public enum ComponentScope
+    public enum AutoDIScope
     {
         /// <summary>
         /// シングルトン＝アプリケーションスコープ

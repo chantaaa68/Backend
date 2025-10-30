@@ -1,14 +1,12 @@
 ﻿using Backend.Annotation;
 using Backend.Dto.common;
-using Backend.Dto.repository;
 using Backend.Model;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Ocsp;
 using WebApplication.Context;
 
 namespace Backend.Repository
 {
-    [Component]
+    [AutoDI]
     public class CategoryRepositoy(AWSDbContext _dbContext)
     {
         public readonly AWSDbContext dbContext = _dbContext;

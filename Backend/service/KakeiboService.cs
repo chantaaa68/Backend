@@ -1,16 +1,17 @@
 ﻿using Backend.Annotation;
-using Backend.Dto.common;
 using Backend.Dto.repository;
 using Backend.Dto.service;
 using Backend.Dto.service.kakeibo;
 using Backend.Model;
 using Backend.Repository;
+using Backend.Utility;
+using Microsoft.AspNetCore.Mvc;
 using WebApplication.Context;
 using static Backend.Utility.Enums;
 
 namespace Backend.service
 {
-    [Component]
+    [AutoDI]
     public class KakeiboService(KakeiboRepository _kakeiboRepositoy,AWSDbContext _dbContext)
     {
 
@@ -24,10 +25,15 @@ namespace Backend.service
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<GetMonthlyResultResponse> GetMonthlyResultAsync(GetMonthlyResultRequest req)
+        public async Task<IActionResult> GetMonthlyResultAsync(GetMonthlyResultRequest req)
         {
             // ユーザーIDから家計簿IDを取得
-            int kakeiboId = await this.kakeiboRepositoy.GetKakeiboIdAsync(req.UserId);
+            int kakeiboId = await this.kakeiboRepositoy.GetKakeiboIdAsync(req.UserId) ?? 0;
+
+            if (kakeiboId == 0)
+            {
+                return ApiResponseHelper.Fail("家計簿が存在しません");
+            }
 
             // 月次レポートを取得する
             GetMonthlyReportResult result = await this.kakeiboRepositoy.GetMonthlyReportAsync(kakeiboId);
@@ -35,12 +41,11 @@ namespace Backend.service
             // 支出と収入で分ける(InoutFlgがtrue:収入、false:支出)
             GetMonthlyResultResponse response = new()
             {
-                MonthlyExpenses = result.MonthlyReports.FirstOrDefault(m => !m.InoutFlg).MonthlyReportItems ?? new List<MonthlyReportItem>(),
-                MonthlyIncomes = result.MonthlyReports.FirstOrDefault(m => m.InoutFlg).MonthlyReportItems ?? new List<MonthlyReportItem>(),
+                MonthlyExpenses = result.MonthlyReports.FirstOrDefault(m => !m.InoutFlg)?.MonthlyReportItems ?? [],
+                MonthlyIncomes = result.MonthlyReports.FirstOrDefault(m => m.InoutFlg)?.MonthlyReportItems ?? [],
             };
 
-            return response;
-
+            return ApiResponseHelper.Success(response);
         }
 
         /// <summary>
@@ -48,13 +53,13 @@ namespace Backend.service
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<GetKakeiboItemDetailResponse> GetKakeiboItemDetailAsync(GetKakeiboItemDetailRequest req)
+        public async Task<IActionResult> GetKakeiboItemDetailAsync(GetKakeiboItemDetailRequest req)
         {
             KakeiboItem? item = await this.kakeiboRepositoy.GetKakeiboItemAsync(req.ItemId);
 
             if (item == null)
             {
-                throw new Exception("アイテムがありません");
+                return ApiResponseHelper.Fail("アイテムが存在しません");
             }
             else
             {
@@ -67,7 +72,7 @@ namespace Backend.service
                     CategoryId = item.CategoryId
                 };
 
-                return response;
+                return ApiResponseHelper.Success(response);
             }
         }
 
@@ -76,10 +81,15 @@ namespace Backend.service
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<UpdateKakeiboResponse> UpdateKakeiboAsync(UpdateKakeiboRequest req)
+        public async Task<IActionResult> UpdateKakeiboAsync(UpdateKakeiboRequest req)
         {
 
-            Kakeibo kakeibo = await this.kakeiboRepositoy.GetKakeiboAsync(req.Id);
+            Kakeibo? kakeibo = await this.kakeiboRepositoy.GetKakeiboAsync(req.Id);
+
+            if (kakeibo == null)
+            {
+                return ApiResponseHelper.Fail("家計簿が存在しません");
+            }
 
             kakeibo.KakeiboName = req.KakeiboName ?? kakeibo.KakeiboName;
             kakeibo.KakeiboExplanation = req.KakeiboExplanation ?? kakeibo.KakeiboExplanation;
@@ -89,7 +99,7 @@ namespace Backend.service
                 Count = await this.kakeiboRepositoy.UpdateKakeiboAsync(kakeibo)
             };
 
-            return response;
+            return ApiResponseHelper.Success(response);
         }
 
         /// <summary>
@@ -97,7 +107,7 @@ namespace Backend.service
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        public async Task<RegistKakeiboItemResponse> RegistKakeiboItemAsync(RegistKakeiboItemRequest req)
+        public async Task<IActionResult> RegistKakeiboItemAsync(RegistKakeiboItemRequest req)
         {
             // くり返し処理用の出入金日付
             DateTime usedDate = req.UsedDate;
@@ -277,23 +287,25 @@ namespace Backend.service
             }
 
             //配列でまとめて登録
-            return new RegistKakeiboItemResponse()
+            RegistKakeiboItemResponse response = new()
             {
                 Count = await this.kakeiboRepositoy.RegistKakeiboItemListAsync(items)
             };
+
+            return ApiResponseHelper.Success(response);
         }
 
         /// <summary>
         /// アイテム更新
         /// <summary>
-        public async Task<UpdateKakeiboItemResponse> UpdateKakeiboItemAsync(UpdateKakeiboItemRequest req)
+        public async Task<IActionResult> UpdateKakeiboItemAsync(UpdateKakeiboItemRequest req)
         {
             // 該当アイテム取得
             KakeiboItem? item = await this.kakeiboRepositoy.GetKakeiboItemAsync(req.ItemId);
 
             if(item == null)
             {
-                throw new Exception("アイテムが存在しません");
+                return ApiResponseHelper.Fail("アイテムが存在しません");
             }
 
             // 該当固定費管理データ取得
@@ -301,7 +313,7 @@ namespace Backend.service
 
             if(frequency == null)
             {
-                throw new Exception("固定費管理データが存在しません");
+                return ApiResponseHelper.Fail("固定費管理情報が存在しません");
             }
             else if(frequency.Frequency == (int)Frequency.OnlyOnce)
             {
@@ -312,10 +324,12 @@ namespace Backend.service
                 item.InoutFlg = req.InoutFlg;
                 item.UsedDate = req.UsedDate;
 
-                return new UpdateKakeiboItemResponse()
+                UpdateKakeiboItemResponse response = new()
                 {
                     Count = await this.kakeiboRepositoy.UpdateKakeiboItemAsync(item)
                 };
+
+                return ApiResponseHelper.Success(response);
             }
             else
             {
@@ -357,6 +371,11 @@ namespace Backend.service
                         StartDate = startTime,
                     });
 
+                    if(items == null || items.Count == 0)
+                    {
+                        return ApiResponseHelper.Fail("更新対象のアイテムが存在しません");
+                    }
+
                     // 取得したアイテムの中身を書き換えてまとめて更新する
                     foreach (var kakeiboItem in items)
                     {
@@ -368,10 +387,12 @@ namespace Backend.service
                         kakeiboItem.InoutFlg = req.InoutFlg;
                     }
 
-                    return new UpdateKakeiboItemResponse()
+                    UpdateKakeiboItemResponse response =  new()
                     {
                         Count = await this.kakeiboRepositoy.UpdateKakeiboItemListAsync(items)
                     };
+
+                    return ApiResponseHelper.Success(response);
                 }
                 else
                 {
@@ -393,10 +414,12 @@ namespace Backend.service
                     item.UsedDate = req.UsedDate;
                     item.FrequencyId = newFrequency.Id;
 
-                    return new UpdateKakeiboItemResponse()
+                    UpdateKakeiboItemResponse response =  new()
                     {
                         Count = await this.kakeiboRepositoy.UpdateKakeiboItemAsync(item)
                     };
+
+                    return ApiResponseHelper.Success(response);
                 }
             }
         }
@@ -406,13 +429,13 @@ namespace Backend.service
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<DeleteKakeiboItemResponse> DeleteKakeiboItemAsync(DeleteKakeiboItemRequest req)
+        public async Task<IActionResult> DeleteKakeiboItemAsync(DeleteKakeiboItemRequest req)
         {
             KakeiboItem? item = await this.kakeiboRepositoy.GetKakeiboItemAsync(req.Id);
 
             if (item == null)
             {
-                throw new Exception("アイテムがありません");
+                return ApiResponseHelper.Fail("アイテムが存在しません");
             }
             else
             {
@@ -423,7 +446,8 @@ namespace Backend.service
                 {
                     Count = await this.kakeiboRepositoy.UpdateKakeiboItemAsync(item)
                 };
-                return response;
+
+                return ApiResponseHelper.Success(response);
             }
         }
     }

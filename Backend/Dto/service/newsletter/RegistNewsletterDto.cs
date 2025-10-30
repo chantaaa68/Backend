@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Backend.Dto.service.newsletter
+﻿namespace Backend.Dto.service.newsletter
 {
     public class RigistNewsletterRequest
     {

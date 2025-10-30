@@ -5,7 +5,7 @@ using WebApplication.Context;
 
 namespace Backend.Repository
 {
-    [Component]
+    [AutoDI]
     public class NewsletterRepository(AWSDbContext _dbContext)
     {
         private readonly AWSDbContext dbContext = _dbContext;
