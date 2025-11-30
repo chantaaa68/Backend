@@ -30,8 +30,7 @@ namespace Backend.Model
         [Comment("削除日時")]
         public DateTime? DeleteDate { get; set; }
 
-        public virtual Category Category { get; set; } = null!;
-
-        public virtual CategoryDefault CategoryDefault { get; set; } = null!;
+        public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+        public virtual ICollection<CategoryDefault> CategoryDefaults { get; set; } = new List<CategoryDefault>();
     }
 }

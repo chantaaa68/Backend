@@ -115,6 +115,59 @@ namespace Backend.Repository
         }
 
         /// <summary>
+        /// その月のアイテムデータ一覧を取得する
+        /// </summary>
+        /// <param name="kakeiboId"></param>
+        /// <returns></returns>
+        public async Task<GetKakeiboItemListResult> GetKakeiboItemListAsync(GetKakeiboItemListParameter prm)
+        {
+
+            List<KakeiboItemInfo> kakeiboItemInfos = new();
+
+            await this._dbContext.KakeiboItem.Where(k => k.KakeiboId == prm.KakeiboId 
+                    && prm.StartDate <= k.UsedDate 
+                    && k.UsedDate <= prm.EndDate
+                    && k.DeleteDate == null)
+                .Include(k => k.Category)
+                    .ThenInclude(c => c.Icon)
+                .GroupBy(k => k.UsedDate.Day)
+                .ForEachAsync(dayGroup =>
+                {
+                    List<Item> items = new();
+
+                    foreach (var days in dayGroup)
+                    {
+                        Item item = new()
+                        {
+                            ItemId = days.Id,
+                            ItemName = days.ItemName,
+                            ItemAmount = days.ItemAmount,
+                            InoutFlg = days.InoutFlg,
+                            UsedDate = days.UsedDate,
+                            IconName = days.Category.Icon.OfficialIconName
+                        };
+
+                        items.Add(item);
+                    }
+                    
+
+                    KakeiboItemInfo info = new()
+                    {
+                        DayNo = dayGroup.Key,
+                        Items = items
+                    };
+                    kakeiboItemInfos.Add(info);
+                });
+
+            GetKakeiboItemListResult result = new()
+            {
+                KakeiboItemInfos = kakeiboItemInfos.OrderBy(i => i.DayNo).ToList()
+            };
+
+            return result;
+        }
+
+        /// <summary>
         /// 個別アイテムデータの取得
         /// </summary>
         /// <param name="request"></param>
@@ -135,7 +188,7 @@ namespace Backend.Repository
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<List<KakeiboItem>?> GetKakeiboItemListAsync(GetKakeiboItemListParameter prm)
+        public async Task<List<KakeiboItem>?> GetFrequencyKakeiboItemListAsync(GetFrequencyKakeiboItemListParameter prm)
         {
             List<KakeiboItem>? result = await this._dbContext.KakeiboItem
                 .Where(k => k.FrequencyId == prm.frequencyId 

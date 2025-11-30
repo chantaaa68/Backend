@@ -25,10 +25,10 @@ namespace Backend.Repository
         /// </summary>
         /// <param name="defaultIconName"></param>
         /// <returns></returns>
-        public async Task<int?> GetIconIdAsync(string defaultIconName)
+        public async Task<int?> GetIconIdAsync(string officialIconName)
         {
             Icon? icon = await this.dbContext.Icon
-                .Where(i => i.DefaultIconName == defaultIconName && i.DeleteDate == null)
+                .Where(i => i.OfficialIconName == officialIconName && i.DeleteDate == null)
                 .FirstOrDefaultAsync();
 
             if (icon == null)

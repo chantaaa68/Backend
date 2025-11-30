@@ -6,6 +6,7 @@ using Backend.Model;
 using Backend.Repository;
 using Backend.Utility;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 using WebApplication.Context;
 using static Backend.Utility.Enums;
 
@@ -43,6 +44,41 @@ namespace Backend.service
             {
                 MonthlyExpenses = result.MonthlyReports.FirstOrDefault(m => !m.InoutFlg)?.MonthlyReportItems ?? [],
                 MonthlyIncomes = result.MonthlyReports.FirstOrDefault(m => m.InoutFlg)?.MonthlyReportItems ?? [],
+            };
+
+            return ApiResponseHelper.Success(response);
+        }
+
+        /// <summary>
+        /// その月のアイテムデータ一覧を取得する
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> GetKakeiboItemListAsync(GetKakeiboItemListRequest req)
+        {
+            // ユーザーIDから家計簿IDを取得
+            int kakeiboId = await this.kakeiboRepositoy.GetKakeiboIdAsync(req.UserId) ?? 0;
+
+            if (kakeiboId == 0)
+            {
+                return ApiResponseHelper.Fail("家計簿が存在しません");
+            }
+
+            // 取得範囲の年月をDateTime型に変換
+            DateTime rangeDate = DateTime.ParseExact(req.Range!, "yyyy-MM", CultureInfo.InvariantCulture, DateTimeStyles.None);
+
+            // アイテムデータ一覧を取得する
+            // 指定月の初日と末日を算出して渡す
+            GetKakeiboItemListResult result = await this.kakeiboRepositoy.GetKakeiboItemListAsync(new()
+            {
+                KakeiboId = kakeiboId,
+                StartDate = new DateTime(rangeDate.Year, rangeDate.Month, 1),
+                EndDate = new DateTime(rangeDate.Year, rangeDate.Month, DateTime.DaysInMonth(rangeDate.Year, rangeDate.Month))
+            });
+
+            GetKakeiboItemListResponse response = new()
+            {
+                KakeiboItemInfos = result.KakeiboItemInfos
             };
 
             return ApiResponseHelper.Success(response);
@@ -365,7 +401,7 @@ namespace Backend.service
                     await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(newFrequency);
 
                     // 続いて、該当全リストを取得して中身の更新を行う
-                    List<KakeiboItem>? items = await this.kakeiboRepositoy.GetKakeiboItemListAsync(new()
+                    List<KakeiboItem>? items = await this.kakeiboRepositoy.GetFrequencyKakeiboItemListAsync(new()
                     {
                         frequencyId = frequency.Id,
                         StartDate = startTime,

@@ -51,7 +51,6 @@ namespace Backend.Dto.service
         /// <summary>
         /// 固定費終了日付
         /// </summary>
-        [Required]
         public DateTime? FixedEndDate { get; set; }
     }
 
