@@ -36,12 +36,17 @@ jobs:
           IMAGE_TAG_LATEST: latest
           DOCKERFILE_PATH: ./Backend/Backend/Dockerfile
         run: |
+          # 環境変数を定義
           ECR_REPOSITORY=${{ env.ECR_REPOSITORY }}
           IMAGE_TAG=${{ env.IMAGE_TAG }}
-          DOCKERFILE_PATH=./Backend/Backend/Dockerfile
-          BUILD_CONTEXT=.
+          DOCKERFILE_PATH=./Backend/Dockerfile 
+
+          # ビルドコンテキストをリポジトリのルート ( . ) に設定
+          BUILD_CONTEXT=. 
 
           # 1. Dockerイメージのビルド
+          # -f でDockerfileの場所を指定し、最後の引数でビルドコンテキストをルート( . )に固定
+          # これで、Dockerfile内の COPY コマンドはリポジトリのルートを基準に動作
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f $DOCKERFILE_PATH \
             $BUILD_CONTEXT
