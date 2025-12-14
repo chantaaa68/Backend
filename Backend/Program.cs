@@ -32,6 +32,8 @@ builder.Services.AddDbContext<AWSDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//ヘルスチェック用
+builder.Services.AddHealthChecks();
 
 // CORSポリシーの名前を定義
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -68,6 +70,9 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 
 app.MapControllers();
+
+//ヘルスチェック用
+app.MapHealthChecks("/health");
 
 app.Run();
 
