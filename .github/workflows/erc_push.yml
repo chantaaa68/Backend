@@ -36,10 +36,16 @@ jobs:
           IMAGE_TAG_LATEST: latest
           DOCKERFILE_PATH: ./Backend/Backend/Dockerfile
         run: |
+          ECR_REPOSITORY=${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG=${{ env.IMAGE_TAG }}
+          DOCKERFILE_PATH=./Backend/Backend/Dockerfile
+          BUILD_CONTEXT=.
+
           # 1. Dockerイメージのビルド
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f $DOCKERFILE_PATH \
-            .
+            $BUILD_CONTEXT
+            
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_LATEST
 
           # 2. ECRへのプッシュ
