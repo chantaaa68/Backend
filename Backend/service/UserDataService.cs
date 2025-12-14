@@ -21,6 +21,30 @@ namespace WebApplication.service
 
 
         /// <summary>
+        /// ログイン
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> LoginAsync(LoginRequest req)
+        {
+            Users? user = await this.userDataRepository.GetLoginUserAsync(req.Email, req.UserHash);
+
+            //ユーザー取得できなかったらエラー、取得できればidを返却
+            if(user == null)
+            {
+                return ApiResponseHelper.Fail("メールアドレスかパスワードが間違っています");
+            }
+            else
+            {
+                LoginResponse response = new() { 
+                    UserId = user.Id ,
+                    KakeiboId = user.Kakeibo.Id
+                };
+                return ApiResponseHelper.Success(response);
+            }
+        }
+
+        /// <summary>
         /// ユーザー・家計簿データの取得
         /// </summary>
         /// <param name="req"></param>
@@ -28,7 +52,7 @@ namespace WebApplication.service
         public async Task<IActionResult> GetUserDataAsync(GetUserDataRequest req)
         {
             // 該当ユーザー取得
-            Users? user = await this.userDataRepository.GetUserAsync(req.Id);
+            Users? user = await this.userDataRepository.GetUserAsync(req.UserId);
 
             if (user == null)
             {
@@ -59,7 +83,7 @@ namespace WebApplication.service
             {
                 Name = req.UserName,
                 Email = req.Email,
-                UserHash = Guid.NewGuid().ToString(), // 仮のハッシュ生成
+                UserHash = req.UserHash
             };
 
             // TODO: トランザクションの検討

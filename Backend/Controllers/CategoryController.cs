@@ -14,7 +14,7 @@ namespace Backend.Controllers
         public readonly CategoryService categoryService = _categoryService;
 
         /// <summary>
-        /// ユーザー登録カテゴリを登録する。存在しない場合、デフォルトカテゴリを返却する。
+        /// ユーザー登録カテゴリリストを取得する。存在しない場合、デフォルトカテゴリを返却する。
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>

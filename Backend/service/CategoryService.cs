@@ -5,6 +5,7 @@ using Backend.Model;
 using Backend.Repository;
 using Backend.Utility;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Backend.service
 {
@@ -22,7 +23,7 @@ namespace Backend.service
         public readonly IconRepository iconRepository = _iconRepository;
 
         /// <summary>
-        /// ユーザー登録カテゴリデータを取得する。存在しない場合、デフォルトカテゴリを返却する。
+        /// ユーザー登録カテゴリデータを取得する。
         /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
@@ -39,37 +40,33 @@ namespace Backend.service
             // ユーザーIDを基に家計簿IDを取得してセット
             List<CategoryItem> userCategoryItems = await this.categoryRepository.GetCategoryAsync(kakeiboId.Value);
 
-            //デフォルトカテゴリの取得
-            List<CategoryItem> categoryItems = await this.categoryRepository.GetCategoryDefaultAsync();
+            
 
-            if (userCategoryItems.Count == 0)
+            if (req.DefaultFlg)
             {
-                //ユーザー登録カテゴリが存在しない場合、デフォルトカテゴリを返す
+                //デフォルトカテゴリの取得
+                List<CategoryItem> categoryItems = await this.categoryRepository.GetCategoryDefaultAsync();
+
+                //２つのリストを結合して返却
                 GetCategoryDataResponse response = new()
                 {
-                    Categories = categoryItems
+                    Categories = new List<CategoryItem>(userCategoryItems.Concat(categoryItems))
                 };
 
                 return ApiResponseHelper.Success(response);
+
             }
             else
             {
-                // アイコン名で合致するデータを上書き
-                Dictionary<string,CategoryItem> mergedCategories = categoryItems.ToDictionary(c => c.IconName);
-
-                //アイコン名は一意なので、アイコン名で合致するデータを上書きする
-                foreach (CategoryItem categoryItem in userCategoryItems)
-                {
-                    mergedCategories[categoryItem.IconName] = categoryItem;
-                }
-
+                //ユーザー登録カテゴリリストのみ返却
                 GetCategoryDataResponse response = new()
                 {
-                    Categories = mergedCategories.Values.ToList()
+                    Categories = userCategoryItems
                 };
 
                 return ApiResponseHelper.Success(response);
             }
+
         }
 
         /// <summary>

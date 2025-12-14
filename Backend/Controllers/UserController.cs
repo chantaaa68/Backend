@@ -13,6 +13,17 @@ namespace Backend.Controllers
         private readonly UserDataService userDataService = _userDataService;
 
         /// <summary>
+        /// ログイン
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest req)
+        {
+            return await this.userDataService.LoginAsync(req);
+        }
+
+        /// <summary>
         /// ユーザー・家計簿データの取得
         /// </summary>
         /// <param name="req"></param>

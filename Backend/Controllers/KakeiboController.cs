@@ -37,6 +37,17 @@ namespace Backend.Controllers
         }
 
         /// <summary>
+        /// その月のアイテムデータ一覧を取得する
+        /// </summary>
+        /// <param name="req"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> GetKakeiboItemListAsync([FromQuery] GetKakeiboItemListRequest req)
+        {
+            return await this._service.GetKakeiboItemListAsync(req);
+        }
+
+        /// <summary>
         /// アイテム詳細データを取得する
         /// </summary>
         /// <param name="req"></param>

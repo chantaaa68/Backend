@@ -28,7 +28,7 @@ namespace Backend.Repository
                 Id = c.Id,
                 CategoryName = c.KategoryName,
                 InoutFlg = c.InoutFlg,
-                IconName = c.Icon.DefaultIconName
+                IconName = c.Icon.OfficialIconName
             }).ToList();
 
             return result;
@@ -50,7 +50,7 @@ namespace Backend.Repository
                     Id = c.Id,
                     CategoryName = c.CategoryName,
                     InoutFlg = c.InoutFlg,
-                    IconName = c.Icon.DefaultIconName
+                    IconName = c.Icon.OfficialIconName
                 }).ToList();
 
             return result;
