@@ -68,11 +68,10 @@ jobs:
         run: |
             aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION --query taskDefinition > task-definition.json
 
-      # 3. 現在のタスク定義を取得する (run: は $VAR 形式でOK) 
+      # 3. 現在のタスク定義を取得する (JSONファイルとして保存)   
       - name: Download task definition
         run: |
             aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} --query taskDefinition > task-definition.json
-            # Note: run: では ${{ env.VAR }} と $VAR の両方が使えますが、ここでは YAML の定義通り ${{ env.VAR }} に統一します。
 
       # 4. タスク定義内の画像URIを新しいものに書き換える
       - name: Fill in the new image ID in the Amazon ECS task definition
