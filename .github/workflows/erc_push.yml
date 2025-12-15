@@ -10,7 +10,10 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }} # ECRリポジトリ名
   IMAGE_TAG: ${{ github.sha }} # コミットSHAをタグとして利用
-
+  ECS_SERVICE: kakeibo_backend-service-yl76oqu7
+  ECS_CLUSTER: backend
+  ECS_TASK_DEFINITION: kakeibo_backend
+  CONTAINER_NAME: kakeibo_backend
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -35,10 +38,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG_LATEST: latest
           DOCKERFILE_PATH: ./Backend/Backend/Dockerfile
-          ECS_SERVICE: kakeibo_backend-service-yl76oqu7
-          ECS_CLUSTER: backend
-          ECS_TASK_DEFINITION: kakeibo_backend
-          CONTAINER_NAME: kakeibo_backend
+
         run: |
           # 環境変数を定義
           ECR_REPOSITORY=${{ env.ECR_REPOSITORY }}
