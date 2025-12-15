@@ -74,14 +74,14 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
             task-definition: task-definition.json
-            container-name: $CONTAINER_NAME
-            image: ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+            container-name: ${{ env.CONTAINER_NAME }}
+            image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
       # 5. ECSサービスを更新する (新しいタスク定義をデプロイ)
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
             task-definition: ${{ steps.task-def.outputs.task-definition }}
-            service: $ECS_SERVICE
-            cluster: $ECS_CLUSTER
+            service: ${{ env.ECS_SERVICE }}
+            cluster: ${{ env.ECS_CLUSTER }}
             wait-for-service-stability: true
