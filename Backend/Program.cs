@@ -25,7 +25,8 @@ builder.Services.AddScoped<NewsletterRepository>();
 builder.Services.AddDbContext<AWSDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")),
+        mySqlOptions => mySqlOptions.EnableRetryOnFailure()
     )
 );
 
@@ -44,9 +45,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       builder =>
                       {
-                          //builder.WithOrigins("http://localhost:4200",
-                          //                    "https://localhost:4200") // 開発環境のURL
-                          builder.WithOrigins("https://kakeibo.chantaaa-test202512.com")　// 本番環境のURL
+                          builder.WithOrigins("http://localhost:4200",
+                                              "https://localhost:4200") // 開発環境のURL
+                          //builder.WithOrigins("https://kakeibo.chantaaa-test202512.com")　// 本番環境のURL
                                  .AllowAnyHeader() // 全てのヘッダーを許可 (開発用)
                                  .AllowAnyMethod() // 全てのHTTPメソッドを許可 (開発用)
                                  .AllowCredentials(); // クッキーや認証ヘッダーを送る場合はこれも必要
@@ -87,7 +88,8 @@ public class AWSDbContextFactory : IDesignTimeDbContextFactory<AWSDbContext>
 
         // 例 SQL Serverの場合
         optionsBuilder.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
-            ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")));
+            ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")),
+            mySqlOptions => mySqlOptions.EnableRetryOnFailure());
 
         return new AWSDbContext(optionsBuilder.Options);
     }
