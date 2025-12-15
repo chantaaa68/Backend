@@ -25,6 +25,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+          ECS_SERVICE: kakeibo_backend-service-yl76oqu7   # スクリーンショットにあるサービス名
+          ECS_CLUSTER: backend                              # スクリーンショットにあるクラスター名
+          ECS_TASK_DEFINITION: kakeibo_backend              # タスク定義ファミリー名 (またはjsonファイルのパス)
+          CONTAINER_NAME: kakeibo_backend
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -40,6 +44,7 @@ jobs:
           ECR_REPOSITORY=${{ env.ECR_REPOSITORY }}
           IMAGE_TAG=${{ env.IMAGE_TAG }}
           DOCKERFILE_PATH=./Backend/Dockerfile 
+
 
           # ビルドコンテキストをリポジトリのルート ( . ) に設定
           BUILD_CONTEXT=. 
@@ -57,3 +62,26 @@ jobs:
           echo "Pushing $ECR_REPOSITORY:$IMAGE_TAG and :latest to ECR..."
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_LATEST
+
+      # 3. 現在のタスク定義を取得する (JSONファイルとして保存)   
+      - name: Download task definition
+        run: |
+            aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} --query taskDefinition > task-definition.json
+
+      # 4. タスク定義内の画像URIを新しいもの(ECRのSHAタグ)に書き換える
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+            task-definition: task-definition.json
+            container-name: ${{ env.CONTAINER_NAME }}
+            image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+      # 5. ECSサービスを更新する (新しいタスク定義をデプロイ)
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+            task-definition: ${{ steps.task-def.outputs.task-definition }}
+            service: ${{ env.ECS_SERVICE }}
+            cluster: ${{ env.ECS_CLUSTER }}
+            wait-for-service-stability: true
