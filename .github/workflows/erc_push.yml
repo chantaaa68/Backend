@@ -68,13 +68,19 @@ jobs:
         run: |
             aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION --query taskDefinition > task-definition.json
 
-      # 4. タスク定義内の画像URIを新しいもの(ECRのSHAタグ)に書き換える
+      # 3. 現在のタスク定義を取得する (run: は $VAR 形式でOK) 
+      - name: Download task definition
+        run: |
+            aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} --query taskDefinition > task-definition.json
+            # Note: run: では ${{ env.VAR }} と $VAR の両方が使えますが、ここでは YAML の定義通り ${{ env.VAR }} に統一します。
+
+      # 4. タスク定義内の画像URIを新しいものに書き換える
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
             task-definition: task-definition.json
-            container-name: ${{ env.CONTAINER_NAME }}
+            container-name: kakeibo_backend
             image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
       # 5. ECSサービスを更新する (新しいタスク定義をデプロイ)
@@ -82,6 +88,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
             task-definition: ${{ steps.task-def.outputs.task-definition }}
-            service: ${{ env.ECS_SERVICE }}
-            cluster: ${{ env.ECS_CLUSTER }}
+            service: kakeibo_backend-service-yl76oqu7
+            cluster: backend
             wait-for-service-stability: true
