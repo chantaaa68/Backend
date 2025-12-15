@@ -10,10 +10,8 @@ env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }} # ECRリポジトリ名
   IMAGE_TAG: ${{ github.sha }} # コミットSHAをタグとして利用
-  ECS_SERVICE: kakeibo_backend-service-yl76oqu7
-  ECS_CLUSTER: backend
   ECS_TASK_DEFINITION: kakeibo_backend
-  CONTAINER_NAME: kakeibo_backend
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -68,18 +66,13 @@ jobs:
         run: |
             aws ecs describe-task-definition --task-definition $ECS_TASK_DEFINITION --query taskDefinition > task-definition.json
 
-      # 3. 現在のタスク定義を取得する (JSONファイルとして保存)   
-      - name: Download task definition
-        run: |
-            aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} --query taskDefinition > task-definition.json
-
       # 4. タスク定義内の画像URIを新しいものに書き換える
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
             task-definition: task-definition.json
-            container-name: kakeibo_backend
+            container-name: backend
             image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
       # 5. ECSサービスを更新する (新しいタスク定義をデプロイ)
