@@ -25,7 +25,7 @@ builder.Services.AddScoped<NewsletterRepository>();
 builder.Services.AddDbContext<AWSDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")),
+        new MySqlServerVersion(new Version(8, 0, 42)),
         mySqlOptions => mySqlOptions.EnableRetryOnFailure()
     )
 );
