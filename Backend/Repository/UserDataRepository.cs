@@ -18,7 +18,7 @@ namespace WebApplication.Repository
         /// <returns></returns>
         public async Task<Users?> GetLoginUserAsync(string email, string userHash)
         {
-            return await this._dbContext.Users.Where(u => u.Email.Equals(email) && u.UserHash.Equals(userHash))
+            return await this._dbContext.Users.Where(u => u.Email.Equals(email) && u.UserHash.Equals(userHash) && u.DeleteDate == null)
                                               .Include(u => u.Kakeibo)
                                               .FirstOrDefaultAsync();
         }
@@ -31,6 +31,19 @@ namespace WebApplication.Repository
         public async Task<Users?> GetUserAsync(int id)
         {
             return await this._dbContext.Users.Where(u => u.Id == id && u.DeleteDate == null)
+                                              .Include(u => u.Kakeibo)
+                                              .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// メールアドレスでユーザーを取得する
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="userHash"></param>
+        /// <returns></returns>
+        public async Task<Users?> GetUserByEmailAsync(string email)
+        {
+            return await this._dbContext.Users.Where(u => u.Email.Equals(email) && u.DeleteDate == null)
                                               .Include(u => u.Kakeibo)
                                               .FirstOrDefaultAsync();
         }

@@ -217,7 +217,7 @@ namespace Backend.service
                 await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(frequency);
 
                 // 繰り返し終了日付に到達するまで繰り返し
-                while (req.FixedEndDate > usedDate)
+                while (req.FixedEndDate >= usedDate)
                 {
                     KakeiboItem item = new KakeiboItem()
                     {
@@ -262,7 +262,7 @@ namespace Backend.service
                 await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(frequency);
 
                 // 繰り返し終了日付に到達するまで繰り返し
-                while (req.FixedEndDate > usedDate)
+                while (req.FixedEndDate >= usedDate)
                 {
                     KakeiboItem item = new KakeiboItem()
                     {
@@ -301,7 +301,7 @@ namespace Backend.service
                 await this.kakeiboRepositoy.RegistKakeiboItemFrequencyAsync(frequency);
 
                 // 繰り返し終了日付に到達するまで繰り返し
-                while (req.FixedEndDate > usedDate)
+                while (req.FixedEndDate >= usedDate)
                 {
                     KakeiboItem item = new KakeiboItem()
                     {

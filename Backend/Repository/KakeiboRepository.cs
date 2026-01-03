@@ -94,19 +94,19 @@ namespace Backend.Repository
                     .Select(i => new MonthlyReport
                     {
                         InoutFlg = i.Key,
-                        MonthlyReportItems = i.GroupBy(i => i.UsedDate.ToString("yyyy-MM"))
+                        MonthlyReportItems = i.GroupBy(e => new { e.UsedDate.Year, e.UsedDate.Month })
                             .Select(t => new MonthlyReportItem
                             {
-                                UsedMonth = t.Key,
+                                UsedMonth = $"{t.Key.Year }-{t.Key.Month}",
                                 CategoryReportItems = t.GroupBy(t => t.Category.CategoryName)
                                     .Select(e => new CategoryReportItem
                                     {
                                         CategoryName = e.Key,
+                                        IconName = e.First().Category.Icon.OfficialIconName,
                                         TotalAmount = e.Sum(e => e.ItemAmount)
                                     })
                                     .ToList()
                             })
-                            .OrderBy(m => m.UsedMonth)
                             .ToList()
                     }).ToListAsync()
             };

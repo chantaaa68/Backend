@@ -36,12 +36,12 @@ namespace WebApplication.Context
             {
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreateDate = DateTime.UtcNow;
-                    entry.Entity.UpdateDate = DateTime.UtcNow;
+                    entry.Entity.CreateDate = DateTime.UtcNow.AddHours(9);
+                    entry.Entity.UpdateDate = DateTime.UtcNow.AddHours(9);
                 }
                 else if (entry.State == EntityState.Modified)
                 {
-                    entry.Entity.UpdateDate = DateTime.UtcNow;
+                    entry.Entity.UpdateDate = DateTime.UtcNow.AddHours(9);
                 }
             }
             return base.SaveChangesAsync(cancellationToken);

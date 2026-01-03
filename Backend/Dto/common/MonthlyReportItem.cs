@@ -21,6 +21,11 @@
         public required string CategoryName { get; set; }
 
         /// <summary>
+        /// アイコン名
+        /// </summary>
+        public required string IconName { get; set; }
+
+        /// <summary>
         /// カテゴリごとの合計金額
         /// </summary>
         public required int TotalAmount { get; set; }

@@ -96,9 +96,11 @@ namespace Backend.service
                 IconId = IconId.Value
             };
 
+            await this.categoryRepository.RegistCategoryAsync(category);
+
             RegistCategoryResponse response = new()
             {
-                CategoryId = await this.categoryRepository.RegistCategoryAsync(category)
+                CategoryId = category.Id
             };
 
             return ApiResponseHelper.Success(response);
