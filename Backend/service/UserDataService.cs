@@ -78,6 +78,11 @@ namespace WebApplication.service
         /// <returns></returns>
         public async Task<IActionResult> RegistAsync(RegistUserRequest req)
         {
+            if(await this.userDataRepository.GetUserByEmailAsync(req.Email) == null)
+            {
+                return ApiResponseHelper.Fail("同一のメールアドレスでの登録があります");
+            }
+
             // ユーザーデータの作成
             Users user = new()
             {
